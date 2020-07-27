@@ -1,0 +1,10 @@
+{
+  "name":"BARE",
+  "magicbytes":"34726525",
+  "port":32201,
+  "protocol_number":70715,
+  "magic_message":"Bare Signed Message:",
+  "magic_message_newline":true,
+  "bootstrap_url":"https://explorer.bare.network",
+  "user_agent":"Bare Core:2.0.0.7"
+}
