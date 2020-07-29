@@ -1,0 +1,10 @@
+{
+  "name":"XBI",
+  "magicbytes":"FEF8A489",
+  "port":7339,
+  "protocol_number":70998,
+  "magic_message":"DarkCoin Signed Message:",
+  "magic_message_newline":true,
+  "bootstrap_ips":"164.68.101.121:70998,147.78.66.181:70998,95.179.157.148:70998,66.42.56.70:70998,173.249.41.134:70998,207.180.208.115:70998,79.143.178.36:70998,93.104.215.203:70998,93.104.213.205:70998",
+  "user_agent":"XBI Core:4.3.2.1"
+}
