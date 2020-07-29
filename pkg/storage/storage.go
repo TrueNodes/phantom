@@ -18,7 +18,7 @@ func InitialiseDB(path string) (*bolt.DB, error) {
 		if err != nil {
 			return fmt.Errorf("DB: Could not create peers bucket: %v", err)
 		} else {
-			log.Println("DB: Bucket created:", peerBucket)
+			log.Println("DB: Bucket was created:")
 		}
 		return nil
 	})
@@ -27,7 +27,7 @@ func InitialiseDB(path string) (*bolt.DB, error) {
 		return nil, err
 	}
 
-	log.Println("DB: Database successfully initialised...")
+	log.Println("DB: Successfully initialised...")
 
 	return db, nil
 }
@@ -49,15 +49,15 @@ func CachePeerToDB(db *bolt.DB, peer string) error {
 		return nil
 	})
 
-	log.Println("DB: Peer added to cache", entry)
-  defer db.Close()
+	log.Println("Peer added to cache", entry)
+	defer db.Close()
 	return err
 }
 
 func LoadPeersFromDB(db *bolt.DB) error {
 	err := db.View(func(tx *bolt.Tx) error {
 		peers := tx.Bucket([]byte("peers")).Get([]byte("peer"))
-		log.Println("DB: Peers:\n", string(peers))
+		log.Println("Peers:\n", string(peers))
 		return nil
 	})
 
@@ -65,7 +65,7 @@ func LoadPeersFromDB(db *bolt.DB) error {
 		return err
 	}
 
-  defer db.Close()
+	defer db.Close()
 
- 	return nil
+	return nil
 }
