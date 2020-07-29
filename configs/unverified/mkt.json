@@ -1,0 +1,10 @@
+{
+  "name":"MKT",
+  "magicbytes":"D9B4BEF9",
+  "port":9275,
+  "protocol_number":70810,
+  "magic_message":"DarkCoin Signed Message:",
+  "magic_message_newline":true,
+  "bootstrap_ips":"163.172.12.206:9275,167.86.124.243:9275",
+  "user_agent":"MKT Core:0.15.0.3"
+}

@@ -1,0 +1,10 @@
+{
+  "name":"ABS",
+  "magicbytes":"4364FBCD",
+  "port":18888,
+  "protocol_number":70211,
+  "magic_message":"DarkCoin Signed Message:",
+  "magic_message_newline":true,
+  "bootstrap_url":"http://explorer.absolutecoin.net",
+  "sentinel_version":"1.2.0"
+}

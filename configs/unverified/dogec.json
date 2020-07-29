@@ -1,0 +1,10 @@
+{
+  "name":"DOGEC",
+  "magicbytes":"191643a0",
+  "port":56740,
+  "protocol_number":70920,
+  "magic_message":"DarkNet Signed Message:",
+  "magic_message_newline":true,
+  "bootstrap_ips":"217.69.9.94:56740,188.122.213.135:56740,188.122.213.61:56740,78.44.255.171:56740,84.242.109.164:56740,99.103.35.106:56740,173.249.56.108:56740",
+  "user_agent":"DOGEC-Core:5.2.2"
+}
