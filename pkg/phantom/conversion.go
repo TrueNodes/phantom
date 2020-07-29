@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	"github.com/GOSSIP-Blockchain/phantom/pkg/socket/wire"
+	"phantom/pkg/socket/wire"
 )
 
 func ConvertVersionStringToInt(str string) uint32 {

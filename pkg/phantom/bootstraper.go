@@ -35,7 +35,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"github.com/GOSSIP-Blockchain/phantom/pkg/socket/wire"
+	"phantom/pkg/socket/wire"
 	"strconv"
 )
 

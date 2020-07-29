@@ -46,7 +46,7 @@ func main() {
 	coinConf.Name = name
 
 	if explorer != "" {
-		coinConf.BootstrapURL = explorer
+	coinConf.BootstrapURL = explorer
 	}
 
 	coinConf.Magicbytes = magicBytes
