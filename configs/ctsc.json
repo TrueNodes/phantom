@@ -1,0 +1,10 @@
+{
+  "name":"CTSC",
+  "magicbytes":"E1FAB689",
+  "port":51527,
+  "protocol_number":70940,
+  "magic_message":"DarkCoin Signed Message:",
+  "magic_message_newline":true,
+  "bootstrap_ips":"104.131.57.209:51527,80.211.58.116:51527,5.8.101.60:51527,80.210.127.1:51527,5.8.101.60:51527",
+  "user_agent":"CTSC Core:3.1.2.1"
+}
