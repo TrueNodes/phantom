@@ -10,7 +10,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
-	"github.com/GOSSIP-Blockchain/phantom/pkg/phantom"
+	"phantom/pkg/phantom"
 )
 
 var coinName string
