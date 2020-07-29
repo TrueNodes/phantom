@@ -35,7 +35,7 @@ import (
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"log"
 	"net"
-	"github.com/breakcrypto/phantom/pkg/socket/wire"
+	"github.com/GOSSIP-Blockchain/phantom/pkg/socket/wire"
 	"strconv"
 	"strings"
 	"sync"
