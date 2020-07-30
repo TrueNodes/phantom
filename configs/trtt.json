@@ -1,0 +1,10 @@
+{
+  "name":"TRTT",
+  "magicbytes":"67585272",
+  "port":30001,
+  "protocol_number":71004,
+  "magic_message":"DarkNet Signed Message:",
+  "magic_message_newline":true,
+  "bootstrap_ips":"116.203.129.119:30001,134.122.85.174:30001,140.82.44.69:30001,185.132.240.150:30001,81.2.250.190:30001,95.216.159.174:30001,96.231.240.101:30001",
+  "user_agent":"Trittium Core:2.2.0.2"
+}
