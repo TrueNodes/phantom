@@ -7,5 +7,6 @@
   "magic_message_newline":true,
   "bootstrap_url":"http://explorer.absolutecoin.net",
   "sentinel_version":"1.2.0",
-  "daemon_version":"0.12.2.5"
+  "daemon_version":"0.12.2.5",
+  "user_agent"="/Absolute Core:0.12.2.5/"
 }
