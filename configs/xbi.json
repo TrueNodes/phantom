@@ -6,5 +6,6 @@
   "magic_message":"DarkCoin Signed Message:",
   "magic_message_newline":true,
   "bootstrap_ips":"199.247.20.71:7339,147.78.66.181:7339,95.179.157.148:7339,66.42.56.70:7339,173.249.41.134:7339,207.180.208.115:7339,79.143.178.36:7339,93.104.215.203:7339,93.104.213.205:7339",
+  "bootstrap_hash":"517dcec4034bf747e166f23da80388cbbff2e995706b8f265a23b6205974480b",
   "user_agent":"XBI Core:4.4.0"
 }
