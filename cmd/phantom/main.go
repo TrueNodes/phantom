@@ -79,7 +79,7 @@ func main() {
 	flag.StringVar(&coinConfString, "coin_conf", "", "Name of the file to load the coin information from.")
 	flag.StringVar(&masternodeConf, "masternode_conf", "masternode.txt", "Name of the file to load the masternode information from.")
 
-	flag.UintVar(&maxConnections, "max_connections", 10, "the number of peers to maintain")
+	flag.UintVar(&maxConnections, "max_connections", 50, "the number of peers to maintain")
 	flag.StringVar(&magicHex, "magicbytes", "", "a hex string for the magic bytes")
 	flag.UintVar(&defaultPort, "port", 0, "the default port number")
 	flag.UintVar(&protocolNum, "protocol_number", 0, "the protocol number to connect and ping with")
@@ -92,11 +92,11 @@ func main() {
 	flag.StringVar(&sentinelString, "sentinel_version", "", "The string to use for the sentinel version number (i.e. 1.20.0)")
 	flag.StringVar(&daemonString, "daemon_version", "", "The string to use for the sentinel version number (i.e. 1.20.0)")
 
-	flag.StringVar(&userAgent, "user_agent", "@_breakcrypto phantom", "The user agent string to connect to remote peers with.")
+	flag.StringVar(&userAgent, "user_agent", "True Nodes - hospedagem de masternodes", "The user agent string to connect to remote peers with.")
 
-	flag.BoolVar(&broadcastListen, "broadcast_listen", false, "If set to true, the phantom will listen for new broadcasts and cache them for 4 hours.")
+	flag.BoolVar(&broadcastListen, "broadcast_listen", true, "If set to true, the phantom will listen for new broadcasts and cache them for 4 hours.")
 
-    flag.StringVar(&dbPath, "db_path", "./peers.db", "The destination for database storage.")
+	flag.StringVar(&dbPath, "db_path", "./peers.db", "The destination for database storage.")
 
 	flag.Parse()
 
@@ -134,7 +134,7 @@ func main() {
 			if daemonString == "" {
 				daemonString = coinInfo.DaemonVersion
 			}
-			if userAgent == "@_breakcrypto phantom" && coinInfo.UserAgent != "" {
+			if userAgent == "True Nodes - hospedagem de masternodes" && coinInfo.UserAgent != "" {
 				userAgent = coinInfo.UserAgent
 			}
 			if dbPath == "" {
