@@ -1,25 +1,10 @@
-# Phantom-node Daemon
+# True Nodes - Phantom Daemon
 
 Phantom nodes requires no static IP address, no copy of the blockchain, and no proof-of-service. As such, you can run a node on any IP address of your liking: `1.1.1.1` or `8.8.8.8` if you wish. Phantoms also support live hot-swap with currently running nodes, there is no need to re-queue.
 
 The phantom daemon is extremely lightweight allowing you to run hundreds of nodes from a modest machine if you wished. And, possibly most importantly, you can move your currently running masternodes to phantom nodes without restarting since a real IP address is no longer a requirement.
 
 The phantom daemon is custom built wallet designed to replicate only what is required for pre-EVO masternodes to run; it replaces the masternode daemon piece. It does not handle any wallet private keys and has no access to your coins. You will still need a wallet to start your masternodes, but once started, the phatom node system will handle the rest for you.
-
-## Contact information
-
-* email: breakcrypto@gmail.com
-* twitter: https://twitter.com/_breakcrypto
-* discord: breakcrypto#0011
-* discord channel: https://discord.gg/fQPb2ew
-* bitcoin talk discussion: https://bitcointalk.org/index.php?topic=5136453.0
-
-## Donation Addresses
-BTC: 151HTde9NgwbMMbMmqqpJYruYRL4SLZg1S
-
-LTC: LhBx1TUyp7wiYuMxjefAGUGZVzuHRtPBA7
-
-DOGE: DBahutcjEAxfwQEW7kzft2y8dhZN2VtcG5
 
 # Feature
 
@@ -49,10 +34,7 @@ That's it. You do not need to restart your masternodes, you don't need to change
 
 # Downloads
 
-* [Windows](https://github.com/GOSSIP-Blockchain/phantom/releases/download/v0.0.5/phantom-windows-amd64.exe.zip)
-* [Linux](https://github.com/GOSSIP-Blockchain/phantom/releases/download/v0.0.5/phantom-linux-amd64.zip)
-* [OSX](https://github.com/GOSSIP-Blockchain/phantom/releases/download/v0.0.5/phantom-darwin-amd64.zip)
-* [ARM](https://github.com/GOSSIP-Blockchain/phantom/releases/download/v0.0.5/phantom-linux-arm.zip)
+* [Latest Release](/releases/latest)
 
 # Setup 
 
@@ -128,7 +110,7 @@ There is a coinconf generator included that can auto-generate settings for most 
   -sentinel_version string
     	The string to use for the sentinel version number (i.e. 1.20.0)
   -user_agent string
-    	The user agent string to connect to remote peers with. (default "@_breakcrypto phantom")
+    	The user agent string to connect to remote peers with. (default "True Nodes - hospedagem de masternodes")
 ```
 
 ## Building (using Docker)
