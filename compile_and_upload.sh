@@ -27,3 +27,5 @@ do
         exit 1
     fi
 done
+
+scp -r TrueNodes-phantom localparacopiar
