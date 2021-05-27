@@ -174,5 +174,5 @@ func (n BitcoinNet) String() string {
 		return s
 	}
 
-	return fmt.Sprintf("Unknown BitcoinNet (%d)", uint32(n))
+	return fmt.Sprintf("BitcoinNet desconhecida (%d)", uint32(n))
 }

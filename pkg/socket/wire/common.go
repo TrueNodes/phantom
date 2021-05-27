@@ -572,7 +572,7 @@ func ReadVarString(r io.Reader, pver uint32) (string, error) {
 	// message size.  It would be possible to cause memory exhaustion and
 	// panics without a sane upper bound on this count.
 	if count > MaxMessagePayload {
-		str := fmt.Sprintf("variable length string is too long "+
+		str := fmt.Sprintf("comprimento da váriavel grande demais "+
 			"[count %d, max %d]", count, MaxMessagePayload)
 		return "", messageError("ReadVarString", str)
 	}
@@ -616,7 +616,7 @@ func ReadVarBytes(r io.Reader, pver uint32, maxAllowed uint32,
 	// be possible to cause memory exhaustion and panics without a sane
 	// upper bound on this count.
 	if count > uint64(maxAllowed) {
-		str := fmt.Sprintf("%s is larger than the max allowed size "+
+		str := fmt.Sprintf("%s é maior que o comprimento máximo permitido "+
 			"[count %d, max %d]", fieldName, count, maxAllowed)
 		return nil, messageError("ReadVarBytes", str)
 	}

@@ -10,7 +10,8 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
-	"phantom/pkg/phantom"
+
+	"../phantom"
 )
 
 var coinName string
@@ -46,7 +47,7 @@ func main() {
 	coinConf.Name = name
 
 	if explorer != "" {
-	coinConf.BootstrapURL = explorer
+		coinConf.BootstrapURL = explorer
 	}
 
 	coinConf.Magicbytes = magicBytes
@@ -55,13 +56,13 @@ func main() {
 
 	parsedPort, err := strconv.Atoi(port)
 	if err != nil {
-		log.Fatal("Error parsing port")
+		log.Fatal("Erro analisnado porta")
 	}
 	coinConf.Port = uint(parsedPort)
 
 	parsedProtocl, err := strconv.Atoi(protocolVersion)
 	if err != nil {
-		log.Fatal("Error parsing protocol version")
+		log.Fatal("Erro analisando versão do protocolo")
 	}
 	coinConf.ProtocolNumber = uint(parsedProtocl)
 
@@ -75,10 +76,10 @@ func main() {
 
 	coinConfJson, err := json.Marshal(coinConf)
 	if err != nil {
-		log.Fatal("Error building json")
+		log.Fatal("Erro construindo json")
 	}
 
-	err = ioutil.WriteFile(strings.ToLower(coinName) + ".json", coinConfJson, 0644)
+	err = ioutil.WriteFile(strings.ToLower(coinName)+".json", coinConfJson, 0644)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -129,7 +130,7 @@ func LoadMagicMessage() string {
 		return matches[1]
 	}
 
-	log.Fatal("No magic message found.")
+	log.Fatal("Magic message não encontrada.")
 	return ""
 }
 
@@ -213,8 +214,8 @@ func UrlForFile(file string) string {
 
 func ConvertVersionHexToString(str string) string {
 	result := ""
-	for i := 0; i<len(str); i += 2 {
-		result += str[i:i+2]
+	for i := 0; i < len(str); i += 2 {
+		result += str[i : i+2]
 	}
 	return result
 }

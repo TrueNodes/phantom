@@ -55,7 +55,7 @@ func (invtype InvType) String() string {
 		return s
 	}
 
-	return fmt.Sprintf("Unknown InvType (%d)", uint32(invtype))
+	return fmt.Sprintf("InvType desconhecido (%d)", uint32(invtype))
 }
 
 // InvVect defines a bitcoin inventory vector which is used to describe data,

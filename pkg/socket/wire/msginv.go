@@ -34,7 +34,7 @@ type MsgInv struct {
 // AddInvVect adds an inventory vector to the message.
 func (msg *MsgInv) AddInvVect(iv *InvVect) error {
 	if len(msg.InvList)+1 > MaxInvPerMsg {
-		str := fmt.Sprintf("too many invvect in message [max %v]",
+		str := fmt.Sprintf("muitos vetores de inventário na mensagem [max %v]",
 			MaxInvPerMsg)
 		return messageError("MsgInv.AddInvVect", str)
 	}
@@ -53,7 +53,7 @@ func (msg *MsgInv) BtcDecode(r io.Reader, pver uint32, enc MessageEncoding) erro
 
 	// Limit to max inventory vectors per message.
 	if count > MaxInvPerMsg {
-		str := fmt.Sprintf("too many invvect in message [%v]", count)
+		str := fmt.Sprintf("muitos vetores de inventário na mensagem [%v]", count)
 		return messageError("MsgInv.BtcDecode", str)
 	}
 
@@ -79,7 +79,7 @@ func (msg *MsgInv) BtcEncode(w io.Writer, pver uint32, enc MessageEncoding) erro
 	// Limit to max inventory vectors per message.
 	count := len(msg.InvList)
 	if count > MaxInvPerMsg {
-		str := fmt.Sprintf("too many invvect in message [%v]", count)
+		str := fmt.Sprintf("muitos vetores de inventário na mensagem [%v]", count)
 		return messageError("MsgInv.BtcEncode", str)
 	}
 

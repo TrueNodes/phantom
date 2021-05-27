@@ -432,7 +432,7 @@ func (msg *MsgTx) BtcDecode(r io.Reader, pver uint32, enc MessageEncoding) error
 		// At the moment, the flag MUST be 0x01. In the future other
 		// flag types may be supported.
 		if flag[0] != 0x01 {
-			str := fmt.Sprintf("witness tx but flag byte is %x", flag)
+			str := fmt.Sprintf("witness tx, mas flag byte é %x", flag)
 			return messageError("MsgTx.BtcDecode", str)
 		}
 
@@ -448,8 +448,8 @@ func (msg *MsgTx) BtcDecode(r io.Reader, pver uint32, enc MessageEncoding) error
 	// message.  It would be possible to cause memory exhaustion and panics
 	// without a sane upper bound on this count.
 	if count > uint64(maxTxInPerMessage) {
-		str := fmt.Sprintf("too many input transactions to fit into "+
-			"max message size [count %d, max %d]", count,
+		str := fmt.Sprintf("muitas transações de entrada para caber no "+
+			"tamanho máximo da mensagem [count %d, max %d]", count,
 			maxTxInPerMessage)
 		return messageError("MsgTx.BtcDecode", str)
 	}
@@ -511,8 +511,8 @@ func (msg *MsgTx) BtcDecode(r io.Reader, pver uint32, enc MessageEncoding) error
 	// without a sane upper bound on this count.
 	if count > uint64(maxTxOutPerMessage) {
 		returnScriptBuffers()
-		str := fmt.Sprintf("too many output transactions to fit into "+
-			"max message size [count %d, max %d]", count,
+		str := fmt.Sprintf("muitas transações de saída para caber no "+
+			"tamanho máximo de saida [count %d, max %d]", count,
 			maxTxOutPerMessage)
 		return messageError("MsgTx.BtcDecode", str)
 	}
