@@ -3,9 +3,8 @@ package storage
 import (
 	"encoding/json"
 	"fmt"
-	"log"
-
 	"github.com/boltdb/bolt"
+	"log"
 )
 
 func InitialiseDB(path string) (*bolt.DB, error) {
@@ -17,9 +16,9 @@ func InitialiseDB(path string) (*bolt.DB, error) {
 	err = db.Update(func(tx *bolt.Tx) error {
 		_, err := tx.CreateBucketIfNotExists([]byte("peers"))
 		if err != nil {
-			return fmt.Errorf("DB: Nào pode criar bucket de pares: %v", err)
+			return fmt.Errorf("DB: Could not create peers bucket: %v", err)
 		} else {
-			log.Println("DB: Bucket criado:")
+			log.Println("DB: Bucket created was created")
 		}
 		return nil
 	})
@@ -28,7 +27,7 @@ func InitialiseDB(path string) (*bolt.DB, error) {
 		return nil, err
 	}
 
-	log.Println("DB: Inicializado com sucesso...")
+	log.Println("DB: Successfully initialised...")
 
 	return db, nil
 }
@@ -52,13 +51,14 @@ func CachePeerToDB(db *bolt.DB, peer string) error {
 
 	//log.Println("Peer added to cache", entry)
 	defer db.Close()
+
 	return err
 }
 
 func LoadPeersFromDB(db *bolt.DB) error {
 	err := db.View(func(tx *bolt.Tx) error {
 		peers := tx.Bucket([]byte("peers")).Get([]byte("peer"))
-		log.Println("Pares:\n", string(peers))
+		log.Println("Peers:\n", string(peers))
 		return nil
 	})
 

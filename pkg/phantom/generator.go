@@ -42,7 +42,6 @@ import (
 	"time"
 
 	"../socket/wire"
-
 	"github.com/btcsuite/btcd/btcec"
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/btcsuite/btcutil"
@@ -118,19 +117,19 @@ func GeneratePingsFromMasternodeFile(filePath string, pingChannel chan Masternod
 
 		//add an epoch if missing and alert
 		if len(fields) == 5 {
-			log.Println("Época não encontrada para: ", fields[0], " assumindo uma qualquer automaticamente.")
+			log.Println("No epoch time found for: ", fields[0], " assuming one.")
 			fields = append(fields, strconv.FormatInt(currentTime.Add(time.Duration(i*5)*time.Second).Unix()-540, 10))
 			i++
 		}
 
 		if len(fields) != 6 {
-			log.Println("Erro processando: ", line)
+			log.Println("Error processing: ", line)
 			continue
 		}
 
 		outputIndex, err := strconv.Atoi(fields[4])
 		if err != nil {
-			log.Println("Erro lendo os valores de index dos masternodes.")
+			log.Println("Error reading masternode index value.")
 		}
 
 		ping := MasternodePing{fields[0],
@@ -172,7 +171,7 @@ func GeneratePingsFromMasternodeFile(filePath string, pingChannel chan Masternod
 	//we have a sorted list of pings -- add them to the channel
 	for _, ping := range pings {
 		//fmt.Println("Enabling: ", ping.Name)
-		log.Printf("%s : ATIVANDO.\n", ping.Name)
+		log.Printf("%s : Enabling.\n", ping.Name)
 		pingChannel <- ping
 	}
 

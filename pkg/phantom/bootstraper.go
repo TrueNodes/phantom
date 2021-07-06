@@ -37,7 +37,6 @@ import (
 	"strconv"
 
 	"../socket/wire"
-
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
 )
 

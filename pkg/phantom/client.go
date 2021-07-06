@@ -40,7 +40,6 @@ import (
 	"time"
 
 	"../socket/wire"
-
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
 )
 
@@ -62,10 +61,12 @@ type PingerConnection struct {
 }
 
 var currentBlockHash = ""
+var currentMnBroadcast = ""
+var currentMnRelaying = ""
 
 func (pinger *PingerConnection) Start(userAgent string) {
 
-	log.Printf("%s : INICIANDO CLIENT\n", pinger.IpAddress)
+	log.Printf("%s : STARTING CLIENT\n", pinger.IpAddress)
 
 	//make sure we close out the waitGroup
 	defer pinger.WaitGroup.Done()
@@ -104,7 +105,7 @@ func (pinger *PingerConnection) Start(userAgent string) {
 
 	tcpAddr, err := net.ResolveTCPAddr("tcp4", pinger.IpAddress+":"+strconv.Itoa(int(pinger.Port)))
 	if err != nil {
-		log.Println(err)
+		//	log.Println(err)
 		pinger.SetStatus(-1)
 		return
 	}
@@ -115,14 +116,14 @@ func (pinger *PingerConnection) Start(userAgent string) {
 	for {
 
 		if connectionAttempts >= 10 || len(pinger.PingChannel) > 10 {
-			log.Println("Erro ao conectar. Fechando conexão")
+			//	log.Println("Unable to connect -- closing connection / channel too full.")
 			pinger.SetStatus(-1)
 			return
 		}
 
 		conn, err := net.DialTCP("tcp", nil, tcpAddr)
 		if err != nil {
-			log.Println(err)
+			//	log.Println(err)
 			connectionAttempts++
 			continue
 		}
@@ -141,7 +142,7 @@ func (pinger *PingerConnection) Start(userAgent string) {
 
 			//connection failed, set the status to -1 and let it be reaped
 			if connectionAttempts >= 10 || len(pinger.PingChannel) > 10 {
-				log.Println("Erro ao conectar. Fechando conexão (interna)")
+				//	log.Println("Unable to connect -- closing connection / channel too full (inside).")
 				pinger.SetStatus(-1)
 				return
 			}
@@ -149,11 +150,11 @@ func (pinger *PingerConnection) Start(userAgent string) {
 			_, msg, _, err := wire.ReadMessageN(bufReader, pinger.ProtocolNumber, magic)
 
 			if err != nil {
-				if strings.Contains(err.Error(), "comando não manipulado") {
+				if strings.Contains(err.Error(), "unhandled command") {
 					//log.Println(err)
 					continue
 				}
-				log.Printf("%s : %s\n", pinger.IpAddress, err)
+				//	log.Printf("%s : %s\n", pinger.IpAddress, err)
 				connectionAttempts++
 				continue
 			} else {
@@ -168,7 +169,7 @@ func (pinger *PingerConnection) Start(userAgent string) {
 						if inventory.Type.String() == "MSG_BLOCK" {
 							if inventory.Hash.String() != currentBlockHash {
 								currentBlockHash = inventory.Hash.String()
-								log.Println("Novo bloco: " + inventory.Hash.String())
+								log.Println("New block:", inventory.Hash.String())
 							}
 							pinger.HashChannel <- inventory.Hash
 						}
@@ -201,7 +202,7 @@ func (pinger *PingerConnection) Start(userAgent string) {
 					wire.WriteMessageN(&bufAddr, &getaddr, pinger.ProtocolNumber, magic)
 					conn.Write(bufAddr.Bytes())
 
-					log.Println("Enviando getaddr")
+					//	log.Println("Sending getaddr")
 
 					defaultHash := chainhash.Hash{}
 					if pinger.BootstrapHash != defaultHash {
@@ -214,7 +215,7 @@ func (pinger *PingerConnection) Start(userAgent string) {
 						wire.WriteMessageN(&bufBlocks, &getblocks, pinger.ProtocolNumber, magic)
 						conn.Write(bufBlocks.Bytes())
 
-						log.Println("Enviando getblocks para o bootstrap")
+						log.Println("Sending getblocks to bootstrap")
 					}
 				}
 
@@ -228,7 +229,7 @@ func (pinger *PingerConnection) Start(userAgent string) {
 					wire.WriteMessageN(&buf, &pong, pinger.ProtocolNumber, magic)
 					conn.Write(buf.Bytes())
 
-					log.Printf("%s : pong!\n", pinger.IpAddress)
+					log.Printf("%s: pong!\n", pinger.IpAddress)
 
 					//clear out the message map
 					for hash, message := range messageMap {
@@ -264,7 +265,10 @@ func (pinger *PingerConnection) Start(userAgent string) {
 				if msg.Command() == "mnb" {
 					mnb := msg.(*wire.MsgMNB)
 					if pinger.BroadcastChannel != nil {
-						log.Println("TRANSMISSÃO DE MASTERNODE: ", mnb.Vin.PreviousOutPoint.String())
+						if mnb.Vin.PreviousOutPoint.String() != currentMnBroadcast {
+							currentMnBroadcast = mnb.Vin.PreviousOutPoint.String()
+							log.Println("MASTERNODE BROADCAST:", mnb.Vin.PreviousOutPoint.String())
+						}
 						pinger.BroadcastChannel <- *mnb
 					}
 				}
@@ -272,8 +276,10 @@ func (pinger *PingerConnection) Start(userAgent string) {
 				//non-blocking select
 				select {
 				case ping := <-pinger.PingChannel:
-					log.Printf("retransmitindo %s por pedido\n",
-						ping.Name)
+					if ping.Name != currentMnRelaying {
+						currentMnRelaying = ping.Name
+						log.Printf("RELAYING: %s\n", ping.Name)
+					}
 
 					mnp := ping.GenerateMasternodePing(pinger.SentinelVersion, pinger.DaemonVersion)
 
@@ -345,7 +351,7 @@ func (pinger *PingerConnection) Start(userAgent string) {
 
 		//we've disconnected, so try again
 		connectionAttempts++
-		log.Printf("%s : Houve um erro, tentando reconectar.\n", pinger.IpAddress)
+		log.Printf("%s : There's been an error, attempting to reconnect.\n", pinger.IpAddress)
 		time.Sleep(1 * time.Minute)
 	}
 }
