@@ -278,7 +278,7 @@ func (pinger *PingerConnection) Start(userAgent string) {
 				case ping := <-pinger.PingChannel:
 					if ping.Name != currentMnRelaying {
 						currentMnRelaying = ping.Name
-						log.Printf("RELAYING: %s\n", ping.Name)
+						log.Printf("REQUEST RECEIVED, RELAYING: %s\n", ping.Name)
 					}
 
 					mnp := ping.GenerateMasternodePing(pinger.SentinelVersion, pinger.DaemonVersion)
