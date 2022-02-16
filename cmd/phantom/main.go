@@ -36,6 +36,7 @@ import (
 	"log"
 	"strconv"
 	"sync"
+	"os"
 	"time"
 
 	"../../pkg/phantom"
@@ -45,6 +46,7 @@ import (
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
 )
 
+var minConnections uint
 var maxConnections uint
 
 var magicBytes uint32
@@ -63,12 +65,16 @@ var userAgent string
 var cachedPeers error
 var numberConnections int
 
-const VERSION = "1.2.7"
+const VERSION = "1.2.8"
+
+var StartTime time.Time
 
 func main() {
 
 	//disable all logging
 	//log.SetOutput(ioutil.Discard)
+
+	StartTime := time.Now()
 
 	var magicHex string
 	var magicMsgNewLine bool
@@ -81,7 +87,8 @@ func main() {
 
 	flag.StringVar(&coinConfString, "coin_conf", "coinconf.json", "Name of the file to load the coin information from.")
 	flag.StringVar(&masternodeConf, "masternode_conf", "masternodeconf.json", "Name of the file to load the masternode information from.")
-	flag.UintVar(&maxConnections, "max_connections", 64, "the number of peers to maintain")
+	flag.UintVar(&minConnections, "min_connections", 0, "the minimum acceptable number of peers to maintain. If not satified in 5 minutes after app starts, then exit (default = 0 = never exit)")
+	flag.UintVar(&maxConnections, "max_connections", 64, "the maximum number of peers to maintain")
 	flag.StringVar(&magicHex, "magicbytes", "", "a hex string for the magic bytes")
 	flag.UintVar(&defaultPort, "port", 0, "the default port number")
 	flag.UintVar(&protocolNum, "protocol_number", 0, "the protocol number to connect and ping with")
@@ -240,6 +247,9 @@ func main() {
 	fmt.Println("Sentinel Version: ", sentinelVersion)
 	fmt.Println("Daemon Version: ", daemonVersion)
 	fmt.Println("Listen for broadcasts: ", broadcastListen)
+	fmt.Println()
+	fmt.Println("Minimum connections: ", minConnections)
+	fmt.Println("Maximum connections: ", maxConnections)
 	fmt.Println("\n\n")
 
 	db, err := storage.InitialiseDB(dbPath)
@@ -297,6 +307,11 @@ func main() {
 	go generatePings(pingGeneratorChannel, hashQueue, magicMessage, broadcastSet)
 
 	waitGroup.Wait()
+
+	elapsed := time.Since(StartTime)
+	fmt.Println("Started in %s", elapsed)
+
+	StartTime = time.Now()
 }
 
 func generatePings(pingChannel chan phantom.MasternodePing, queue *phantom.Queue,
@@ -425,6 +440,15 @@ func sendPings(connectionSet map[string]*phantom.PingerConnection, peerSet map[s
 		numberConnections = len(connectionSet)
 
 		log.Println("Current number of connections to network: (", len(connectionSet), "/", maxConnections, ")")
+
+		if numberConnections < int(minConnections) && time.Now().Sub(StartTime).Seconds() > 300 {
+			var runningTime time.Duration = time.Now().Sub(StartTime)
+
+			log.Println("Minimum number of connections (", minConnections, ") not satisfied. application has been running for ", runningTime)
+			log.Println("Closing Application now")
+			
+			os.Exit(0)
+		}
 
 		//spawn off extra nodes here if we don't have enough
 		if len(connectionSet) < int(maxConnections) {
