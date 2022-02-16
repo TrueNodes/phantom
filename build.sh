@@ -11,6 +11,8 @@ platforms=( "aix/ppc64" "android/386" "android/amd64" "android/arm" "android/arm
 
 for platform in "${platforms[@]}"
 do
+    echo -e "Building for\u001b[32m $platform\u001b[0m"
+
     platform_split=(${platform//\// })
     GOOS=${platform_split[0]}
     GOARCH=${platform_split[1]}
