@@ -34,16 +34,16 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"os"
 	"strconv"
 	"sync"
-	"os"
 	"time"
 
 	"../../pkg/phantom"
 	"../../pkg/socket/wire"
 	"../../pkg/storage"
 
-	"github.com/btcsuite/btcd/chaincfg/chainhash"
+	"github.com/TrueNodes/btcd/chaincfg/chainhash"
 )
 
 var minConnections uint
@@ -65,7 +65,7 @@ var userAgent string
 var cachedPeers error
 var numberConnections int
 
-const VERSION = "1.2.8"
+const VERSION = "1.2.9"
 
 var StartTime time.Time
 
@@ -446,7 +446,7 @@ func sendPings(connectionSet map[string]*phantom.PingerConnection, peerSet map[s
 
 			log.Println("Minimum number of connections (", minConnections, ") not satisfied. application has been running for ", runningTime)
 			log.Println("Closing Application now")
-			
+
 			os.Exit(0)
 		}
 

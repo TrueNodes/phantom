@@ -37,7 +37,8 @@ import (
 	"strconv"
 
 	"../socket/wire"
-	"github.com/btcsuite/btcd/chaincfg/chainhash"
+	
+	"github.com/TrueNodes/btcd/chaincfg/chainhash"
 )
 
 type Bootstrapper struct {

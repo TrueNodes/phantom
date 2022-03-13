@@ -6,7 +6,8 @@ package wire
 
 import (
 	"io"
-	"github.com/btcsuite/btcd/chaincfg/chainhash"
+
+	"github.com/TrueNodes/btcd/chaincfg/chainhash"
 )
 
 // MsgPong implements the Message interface and represents a bitcoin pong
@@ -17,15 +18,15 @@ import (
 type MsgMNP struct {
 	// Unique value associated with message that is used to identify
 	// specific ping message.
-	Vin TxIn
-	BlockHash chainhash.Hash
-	SigTime uint64
-	VchSig []byte
-	SentinelEnabled bool
+	Vin               TxIn
+	BlockHash         chainhash.Hash
+	SigTime           uint64
+	VchSig            []byte
+	SentinelEnabled   bool
 	SentinelIsCurrent bool
-	SentinelVersion uint32
-	DaemonEnabled bool
-	DaemonVersion uint32
+	SentinelVersion   uint32
+	DaemonEnabled     bool
+	DaemonVersion     uint32
 }
 
 // BtcDecode decodes r using the bitcoin protocol encoding into the receiver.
@@ -124,7 +125,7 @@ func (msg *MsgMNP) Command() string {
 // receiver.  This is part of the Message interface implementation.
 func (msg *MsgMNP) MaxPayloadLength(pver uint32) uint32 {
 	//vin + blockhash + sigTime + vchSig
-	return 41+32+8+74+1+4
+	return 41 + 32 + 8 + 74 + 1 + 4
 }
 
 // NewMsgPong returns a new bitcoin pong message that conforms to the Message

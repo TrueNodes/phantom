@@ -25,13 +25,14 @@
 *    delete this exception statement from your version. If you delete this
 *    exception statement from all source files in the program, then also delete
 *    it in the license file.
-*/
+ */
 
 package phantom
 
 import (
-	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"sync"
+	
+	"github.com/TrueNodes/btcd/chaincfg/chainhash"
 )
 
 // Queue is a basic FIFO queue based on a circular list that resizes as needed.
@@ -41,7 +42,7 @@ type Queue struct {
 	head  int
 	tail  int
 	count int
-	mux sync.Mutex
+	mux   sync.Mutex
 }
 
 func NewQueue(size int) *Queue {

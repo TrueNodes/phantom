@@ -10,7 +10,7 @@ import (
 	"io"
 	"unicode/utf8"
 
-	"github.com/btcsuite/btcd/chaincfg/chainhash"
+	"github.com/TrueNodes/btcd/chaincfg/chainhash"
 )
 
 // MessageHeaderSize is the number of bytes in a bitcoin message header.
@@ -57,10 +57,10 @@ const (
 	CmdCFilter      = "cfilter"
 	CmdCFHeaders    = "cfheaders"
 	CmdCFCheckpt    = "cfcheckpt"
-	CmdMNP			= "mnp"
-	CmdMNB			= "mnb"
-	CmdDESG			= "dseg"
-	CmdGovObj		= "govobj"
+	CmdMNP          = "mnp"
+	CmdMNB          = "mnb"
+	CmdDESG         = "dseg"
+	CmdGovObj       = "govobj"
 )
 
 // MessageEncoding represents the wire message encoding format to be used.

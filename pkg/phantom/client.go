@@ -40,7 +40,8 @@ import (
 	"time"
 
 	"../socket/wire"
-	"github.com/btcsuite/btcd/chaincfg/chainhash"
+	
+	"github.com/TrueNodes/btcd/chaincfg/chainhash"
 )
 
 type PingerConnection struct {

@@ -8,13 +8,14 @@ import (
 	"bufio"
 	"bytes"
 	"encoding/binary"
-	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"io"
+
+	"github.com/TrueNodes/btcd/chaincfg/chainhash"
 )
 
 type CService struct {
 	IpAddress [16]byte
-	Port uint16
+	Port      uint16
 }
 
 func (service *CService) BtcEncode(w io.Writer, pver uint32, enc MessageEncoding) error {
@@ -48,15 +49,15 @@ func (service *CService) BtcDecode(r io.Reader, pver uint32, enc MessageEncoding
 type MsgMNB struct {
 	// Unique value associated with message that is used to identify
 	// specific ping message.
-	Vin TxIn
-	Addr CService
+	Vin                     TxIn
+	Addr                    CService
 	PubKeyCollateralAddress []byte
-	PubKeyMasternode []byte
-	Sig []byte
-	SigTime uint64
-	ProtocolVersion uint32
-	LastPing MsgMNP
-	LastDsq uint64
+	PubKeyMasternode        []byte
+	Sig                     []byte
+	SigTime                 uint64
+	ProtocolVersion         uint32
+	LastPing                MsgMNP
+	LastDsq                 uint64
 }
 
 // BtcDecode decodes r using the bitcoin protocol encoding into the receiver.
@@ -141,7 +142,7 @@ func (msg *MsgMNB) MaxPayloadLength(pver uint32) uint32 {
 	//vin + addr + pubKeyCollateralAddress + pubKeyMasternode + sig +
 	//sigTime + nProtovolVersion + 	MNP + nLastDsq
 	//ping = vin + blockhash + sigTime + vchSig
-	return 41+18+65+65+73+8+4+(41+32+8+73)+8
+	return 41 + 18 + 65 + 65 + 73 + 8 + 4 + (41 + 32 + 8 + 73) + 8
 }
 
 // NewMsgPong returns a new bitcoin pong message that conforms to the Message

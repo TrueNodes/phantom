@@ -42,9 +42,11 @@ import (
 	"time"
 
 	"../socket/wire"
-	"github.com/btcsuite/btcd/btcec"
-	"github.com/btcsuite/btcd/chaincfg/chainhash"
-	"github.com/btcsuite/btcutil"
+	
+	"github.com/TrueNodes/btcd/btcec"
+	"github.com/TrueNodes/btcd/btcec/ecdsa"
+	"github.com/TrueNodes/btcd/btcutil"
+	"github.com/TrueNodes/btcd/chaincfg/chainhash"
 )
 
 type MasternodePing struct {
@@ -228,7 +230,7 @@ func GenerateMNPSignature(magicMessage string, hash string, n uint32, scriptSig 
 	wire.WriteVarString(&buf, 0, fmt.Sprintf("CTxIn(COutPoint(%s, %d), scriptSig=%s)%s%s", hash, n, hex.EncodeToString(scriptSig), blockHash, strconv.FormatInt(int64(sigTime), 10)))
 	expectedMessageHash := chainhash.DoubleHashB(buf.Bytes())
 
-	sig, _ := btcec.SignCompact(btcec.S256(), &privKey, expectedMessageHash, false)
+	sig, _ := ecdsa.SignCompact(&privKey, expectedMessageHash, false)
 
 	return sig
 }
