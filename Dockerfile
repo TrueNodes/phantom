@@ -8,4 +8,4 @@ RUN go install -v ./...
 
 RUN go build
 
-CMD ["build.sh"]
+CMD ["build.sh && build_coinconf.sh"]
