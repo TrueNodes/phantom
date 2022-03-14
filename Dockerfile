@@ -1,4 +1,4 @@
-FROM golang:1.12.4
+FROM golang:1.17.7
 
 WORKDIR /go/src/phantom
 COPY . .
