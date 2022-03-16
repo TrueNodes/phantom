@@ -62,7 +62,7 @@ Download a binary release from below. See if there's a coin configuration for th
 
 That's it. You do not need to restart your masternodes, you don't need to change IP addresses, etc. Once the phantom daemon is running, you can disable your masternode daemons, cancel most of VPS subscriptions, and enjoy the savings. You'll know the phantoms are working when you see the active time refresh (can take up to 20 minutes). If that active time doesn't update, restart your daemons and check the settings.
 
-# Downloads
+# Downloads (old versions, NON UCCoin Team )
 
 * [Windows](https://github.com/breakcrypto/phantom/releases/download/v0.0.5/phantom-windows-amd64.exe.zip)
 * [Linux](https://github.com/breakcrypto/phantom/releases/download/v0.0.5/phantom-linux-amd64.zip)
@@ -146,8 +146,15 @@ There is a coinconf generator included that can auto-generate settings for most 
     	The user agent string to connect to remote peers with. (default "@_breakcrypto phantom")
 ```
 
-## Building (using Docker)
+## Building (using Docker) -- NOT RECOMMENDED BY US !
 
 ```
 docker run --rm -it -v "$PWD":/go/src/phantom -w /go/src/phantom golang:1.12.4 ./build.sh 
 ```
+Download UCCoin-phantom-UCCoin-refactoring.zip sourcecode.
+Extract archive in your home directory.
+Open terminal in UCCoin-phantom-UCCoin-refactoring folder.
+Execute ./build.sh
+Binaries (see build.sh) will be build in UCCoin-phantom-UCCoin-refactoring folder.
+...
+
