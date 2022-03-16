@@ -1,6 +1,6 @@
 # Phantom-node Daemon
 
-This is UCCoin Team version.
+# This is UCCoin Team version.
 
 Phantom nodes requires no static IP address, no copy of the blockchain, and no proof-of-service. As such, you can run a node on any IP address of your liking: `1.1.1.1` or `8.8.8.8` if you wish. Phantoms also support live hot-swap with currently running nodes, there is no need to re-queue.
 
@@ -22,7 +22,7 @@ The phantom daemon is custom built wallet designed to replicate only what is req
 * bitcoin talk discussion: https://bitcointalk.org/index.php?topic=5136453.0
 
 ## Donation Addresses 
-!! It belong to the team of initial developers. !!
+## !! It belong to the team of initial developers. !!
 
 BTC: 151HTde9NgwbMMbMmqqpJYruYRL4SLZg1S
 
@@ -30,7 +30,7 @@ LTC: LhBx1TUyp7wiYuMxjefAGUGZVzuHRtPBA7
 
 DOGE: DBahutcjEAxfwQEW7kzft2y8dhZN2VtcG5
 
-!! Donations for UCCoin Team:
+## !! Donations for UCCoin Team:
 
 CRD: c62yWzyCJSLU1bXNmj8FPB9uGoQTefHSDo
 
