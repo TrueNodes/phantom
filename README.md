@@ -151,7 +151,7 @@ There is a coinconf generator included that can auto-generate settings for most 
 ```
 docker run --rm -it -v "$PWD":/go/src/phantom -w /go/src/phantom golang:1.12.4 ./build.sh 
 ```
-###
+****
 
 Download UCCoin-phantom-UCCoin-refactoring.zip sourcecode.
 
@@ -163,5 +163,5 @@ Execute ./build.sh
 
 Binaries (see build.sh) will be build in UCCoin-phantom-UCCoin-refactoring folder.
 
-###
+****
 
