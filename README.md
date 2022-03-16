@@ -109,6 +109,9 @@ If you are launching a new node, not performing a hotswap, due to the way PIVX c
 
 Check the /config folder
 
+## WE NOT RECOMMEND TO USE GENERATOR. YOU CAN FIND ALL PARAMETERS IN YOUR CRYPTOCURRENCY SOURCE CODE.
+## ASK YOUR CRYPTOCURRENCY DEVELOPERS TO HELP YOU.
+
 There is a coinconf generator included that can auto-generate settings for most masternode coins. Check the `tools/coinconf` directory.
 
 ## Available Flags
