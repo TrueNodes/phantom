@@ -16,12 +16,19 @@ The phantom daemon is custom built wallet designed to replicate only what is req
 * discord channel: https://discord.gg/fQPb2ew
 * bitcoin talk discussion: https://bitcointalk.org/index.php?topic=5136453.0
 
-## Donation Addresses
+## Donation Addresses 
+!! It belong to the team of initial developers. !!
 BTC: 151HTde9NgwbMMbMmqqpJYruYRL4SLZg1S
 
 LTC: LhBx1TUyp7wiYuMxjefAGUGZVzuHRtPBA7
 
 DOGE: DBahutcjEAxfwQEW7kzft2y8dhZN2VtcG5
+
+!! Donations for UCCoin Team:
+
+CRD: c62yWzyCJSLU1bXNmj8FPB9uGoQTefHSDo
+
+xSLDS:  DGYzZXEUSWW1YpEg2AQdWbjCwsVDtS6E1a
 
 # Feature
 
