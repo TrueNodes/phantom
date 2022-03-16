@@ -10,10 +10,14 @@ The phantom daemon is custom built wallet designed to replicate only what is req
 
 ## Contact information
 
+* UCCcoin discord:  https://discord.gg/px3uga5Dr7
+* PosMNtalk forum:  https://posmntalk.freeforums.net/thread/12/uccoin-phantom
+* 
+## Old contacts (could be obsolete or inactive):
+
 * email: breakcrypto@gmail.com
 * twitter: https://twitter.com/_breakcrypto
 * discord: breakcrypto#0011
-* UCCcoin discord: https://discord.gg/px3uga5Dr7
 * discord channel: https://discord.gg/fQPb2ew
 * bitcoin talk discussion: https://bitcointalk.org/index.php?topic=5136453.0
 
