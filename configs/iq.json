@@ -1,0 +1,11 @@
+{
+  "name":"IQCash",
+  "magicbytes":"E4E2DDD7",
+  "port":14014,
+  "protocol_number":70211,
+  "magic_message":"DarkCoin Signed Message:",
+  "magic_message_newline":true,
+  "bootstrap_url":"https://explorer.iq.cash",
+  "user_agent":"IQcash Core:0.8.4.2",
+  "sentinel_version":"1.2.0"
+}

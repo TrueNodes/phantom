@@ -170,7 +170,7 @@ func (msg *MsgMNP) Command() string {
 // receiver.  This is part of the Message interface implementation.
 func (msg *MsgMNP) MaxPayloadLength(pver uint32) uint32 {
 	//vin + blockhash + sigTime + vchSig
-	return 41+32+8+74+1+4
+	return 41 + 32 + 8 + 74 + 1 + 4
 }
 
 // NewMsgPong returns a new bitcoin pong message that conforms to the Message

@@ -8,7 +8,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	"phantom/pkg/socket/wire"
+
+	"../socket/wire"
 )
 
 func ConvertVersionStringToInt(str string) uint32 {

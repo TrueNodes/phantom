@@ -10,8 +10,8 @@ import (
 type CoinConf struct {
 	Name                string `json:"name"`
 	Magicbytes          string `json:"magicbytes"`
-	Port                uint    `json:"port"`
-	ProtocolNumber      uint    `json:"protocol_number"`
+	Port                uint   `json:"port"`
+	ProtocolNumber      uint   `json:"protocol_number"`
 	MagicMessage        string `json:"magic_message"`
 	MagicMessageNewline bool   `json:"magic_message_newline,omitempty"`
 	BootstrapURL        string `json:"bootstrap_url,omitempty"`

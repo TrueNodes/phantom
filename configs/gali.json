@@ -1,0 +1,10 @@
+{
+  "name":"GALI",
+  "magicbytes":"5415C3D2",
+  "port":36001,
+  "protocol_number":70723,
+  "magic_message":"DarkNet Signed Message:",
+  "magic_message_newline":true,
+  "bootstrap_ips":"144.91.113.201:36001,167.86.104.136:36001,173.212.201.235:36001,185.233.106.241:36001,188.122.212.138:3600145.76.82.43:3600178.44.255.171:36001",
+  "user_agent":"Galilel Core:3.4.0"
+}

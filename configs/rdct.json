@@ -1,0 +1,10 @@
+{
+	"name":"RDCT",
+	"magicbytes":"E6CC23F0",
+	"port":49846,
+	"protocol_number":70912,
+	"magic_message":"DarkNet Signed Message:",
+	"magic_message_newline":true,
+	"bootstrap_url":"https://explorer.rdctoken.io/",
+	"bootstrap_ips":"n1.rdctoken.io:49846,n2.rdctoken.io:49846,n3.rdctoken.io:49846,n4.rdctoken.io:49846,n5.rdctoken.io:49846,n6.rdctoken.io:49846,n7.rdctoken.io:49846,n8.rdctoken.io:49846,n9.rdctoken.io:49846,n10.rdctoken.io:49846,n11.rdctoken.io:49846,n12.rdctoken.io:49846,n13.rdctoken.io:49846,n14.rdctoken.io:49846,n15.rdctoken.io:49846,n16.rdctoken.io:49846,n17.rdctoken.io:49846,n18.rdctoken.io:49846,n19.rdctoken.io:49846,n20.rdctoken.io:49846"
+}

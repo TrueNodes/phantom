@@ -25,7 +25,7 @@
 *    delete this exception statement from your version. If you delete this
 *    exception statement from all source files in the program, then also delete
 *    it in the license file.
-*/
+ */
 
 package phantom
 
@@ -34,28 +34,31 @@ import (
 	"bytes"
 	"encoding/hex"
 	"fmt"
-	"github.com/btcsuite/btcd/btcec"
-	"github.com/btcsuite/btcd/chaincfg/chainhash"
-	"github.com/btcsuite/btcutil"
 	"log"
 	"os"
-	"phantom/pkg/socket/wire"
 	"sort"
 	"strconv"
 	"strings"
 	"time"
+
+	"../socket/wire"
+	
+	"github.com/TrueNodes/btcd/btcec"
+	"github.com/TrueNodes/btcd/btcec/ecdsa"
+	"github.com/TrueNodes/btcd/btcutil"
+	"github.com/TrueNodes/btcd/chaincfg/chainhash"
 )
 
 type MasternodePing struct {
-	Name string
-	OutpointHash string
-	OutpointIndex uint32
-	PrivateKey string
-	PingTime time.Time
-	MagicMessage string
-	SentinelVersion uint32
-	DaemonVersion uint32
-	HashQueue *Queue
+	Name              string
+	OutpointHash      string
+	OutpointIndex     uint32
+	PrivateKey        string
+	PingTime          time.Time
+	MagicMessage      string
+	SentinelVersion   uint32
+	DaemonVersion     uint32
+	HashQueue         *Queue
 	BroadcastTemplate *wire.MsgMNB
 }
 
@@ -73,7 +76,7 @@ func (p pingSlice) Swap(i, j int) {
 	p[i], p[j] = p[j], p[i]
 }
 
-func determinePingTime(unixTime string) (time.Time) {
+func determinePingTime(unixTime string) time.Time {
 
 	i, err := strconv.ParseInt(unixTime, 10, 64)
 	if err != nil {
@@ -84,7 +87,7 @@ func determinePingTime(unixTime string) (time.Time) {
 	difference := time.Now().UTC().Sub(base)
 
 	//var bump uint32
-	bump := uint32(difference.Minutes() / 10) + 1
+	bump := uint32(difference.Minutes()/10) + 1
 	result := time.Minute * time.Duration(bump) * 10
 
 	return base.Add(result)
@@ -117,7 +120,7 @@ func GeneratePingsFromMasternodeFile(filePath string, pingChannel chan Masternod
 		//add an epoch if missing and alert
 		if len(fields) == 5 {
 			log.Println("No epoch time found for: ", fields[0], " assuming one.")
-			fields = append(fields, strconv.FormatInt(currentTime.Add(time.Duration(i*5) * time.Second).Unix() - 540, 10))
+			fields = append(fields, strconv.FormatInt(currentTime.Add(time.Duration(i*5)*time.Second).Unix()-540, 10))
 			i++
 		}
 
@@ -145,8 +148,8 @@ func GeneratePingsFromMasternodeFile(filePath string, pingChannel chan Masternod
 
 		if broadcastSet != nil {
 			//check for a broadcast template
-			broadcast, ok := broadcastSet[ping.OutpointHash +
-				":" + strconv.Itoa(int(ping.OutpointIndex))]
+			broadcast, ok := broadcastSet[ping.OutpointHash+
+				":"+strconv.Itoa(int(ping.OutpointIndex))]
 
 			//provide the template
 			if ok {
@@ -155,8 +158,8 @@ func GeneratePingsFromMasternodeFile(filePath string, pingChannel chan Masternod
 				//remove the broadcast after 24 hours
 				sigTime := time.Unix(int64(broadcast.SigTime), 0)
 				if sigTime.Add(time.Hour * 24).Before(time.Now().UTC()) {
-					delete(broadcastSet, ping.OutpointHash +
-						":" + strconv.Itoa(int(ping.OutpointIndex)))
+					delete(broadcastSet, ping.OutpointHash+
+						":"+strconv.Itoa(int(ping.OutpointIndex)))
 				}
 			}
 		}
@@ -176,7 +179,7 @@ func GeneratePingsFromMasternodeFile(filePath string, pingChannel chan Masternod
 
 }
 
-func (ping *MasternodePing) GenerateMasternodePing(sentinelVersion uint32, daemonVersion uint32) (wire.MsgMNP){
+func (ping *MasternodePing) GenerateMasternodePing(sentinelVersion uint32, daemonVersion uint32) wire.MsgMNP {
 	mnp := wire.MsgMNP{}
 
 	//add sentinel support
@@ -193,7 +196,7 @@ func (ping *MasternodePing) GenerateMasternodePing(sentinelVersion uint32, daemo
 
 	//setup the outpoint
 	var outpointHash chainhash.Hash
-	chainhash.Decode(&outpointHash,ping.OutpointHash)
+	chainhash.Decode(&outpointHash, ping.OutpointHash)
 	outpoint := wire.NewOutPoint(&outpointHash, ping.OutpointIndex)
 	txIn := wire.NewTxIn(outpoint, nil, nil)
 
@@ -225,7 +228,7 @@ func GenerateMNPSignature(magicMessage string, hash string, n uint32, scriptSig 
 	wire.WriteVarString(&buf, 0, fmt.Sprintf("CTxIn(COutPoint(%s, %d), scriptSig=%s)%s%s", hash, n, hex.EncodeToString(scriptSig), blockHash, strconv.FormatInt(int64(sigTime), 10)))
 	expectedMessageHash := chainhash.DoubleHashB(buf.Bytes())
 
-	sig, _ := btcec.SignCompact(btcec.S256(), &privKey, expectedMessageHash, false)
+	sig, _ := ecdsa.SignCompact(&privKey, expectedMessageHash, false)
 
 	return sig
 }

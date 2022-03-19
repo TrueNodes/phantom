@@ -1,0 +1,10 @@
+{
+  "name":"1x2",
+  "magicbytes":"2DE74057",
+  "port":9214,
+  "protocol_number":70810,
+  "magic_message":"DarkNet Signed Message:",
+  "magic_message_newline":true,
+  "bootstrap_url":"http://explorer.1x2-coin.net",
+  "user_agent":"1x2:1.0.0"
+}
