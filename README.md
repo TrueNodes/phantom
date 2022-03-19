@@ -1,5 +1,7 @@
 # Phantom-node Daemon
 
+# This is UCCoin Team version.
+
 Phantom nodes requires no static IP address, no copy of the blockchain, and no proof-of-service. As such, you can run a node on any IP address of your liking: `1.1.1.1` or `8.8.8.8` if you wish. Phantoms also support live hot-swap with currently running nodes, there is no need to re-queue.
 
 The phantom daemon is extremely lightweight allowing you to run hundreds of nodes from a modest machine if you wished. And, possibly most importantly, you can move your currently running masternodes to phantom nodes without restarting since a real IP address is no longer a requirement.
@@ -8,18 +10,31 @@ The phantom daemon is custom built wallet designed to replicate only what is req
 
 ## Contact information
 
+* UCCcoin discord:  https://discord.gg/px3uga5Dr7
+* PosMNtalk forum:  https://posmntalk.freeforums.net/thread/12/uccoin-phantom
+* 
+## Old contacts (could be obsolete or inactive):
+
 * email: breakcrypto@gmail.com
 * twitter: https://twitter.com/_breakcrypto
 * discord: breakcrypto#0011
 * discord channel: https://discord.gg/fQPb2ew
 * bitcoin talk discussion: https://bitcointalk.org/index.php?topic=5136453.0
 
-## Donation Addresses
+## Donation Addresses 
+## !! It belong to the team of initial developers. !!
+
 BTC: 151HTde9NgwbMMbMmqqpJYruYRL4SLZg1S
 
 LTC: LhBx1TUyp7wiYuMxjefAGUGZVzuHRtPBA7
 
 DOGE: DBahutcjEAxfwQEW7kzft2y8dhZN2VtcG5
+
+## !! Donations for UCCoin Team:
+
+CRD: c62yWzyCJSLU1bXNmj8FPB9uGoQTefHSDo
+
+xSLDS:  DGYzZXEUSWW1YpEg2AQdWbjCwsVDtS6E1a
 
 # Feature
 
@@ -47,7 +62,7 @@ Download a binary release from below. See if there's a coin configuration for th
 
 That's it. You do not need to restart your masternodes, you don't need to change IP addresses, etc. Once the phantom daemon is running, you can disable your masternode daemons, cancel most of VPS subscriptions, and enjoy the savings. You'll know the phantoms are working when you see the active time refresh (can take up to 20 minutes). If that active time doesn't update, restart your daemons and check the settings.
 
-# Downloads
+# Downloads (old versions, NON UCCoin Team )
 
 * [Windows](https://github.com/breakcrypto/phantom/releases/download/v0.0.5/phantom-windows-amd64.exe.zip)
 * [Linux](https://github.com/breakcrypto/phantom/releases/download/v0.0.5/phantom-linux-amd64.zip)
@@ -94,6 +109,9 @@ If you are launching a new node, not performing a hotswap, due to the way PIVX c
 
 Check the /config folder
 
+## WE NOT RECOMMEND TO USE GENERATOR. YOU CAN FIND ALL PARAMETERS IN YOUR CRYPTOCURRENCY SOURCE CODE.
+## ASK YOUR CRYPTOCURRENCY DEVELOPERS TO HELP YOU.
+
 There is a coinconf generator included that can auto-generate settings for most masternode coins. Check the `tools/coinconf` directory.
 
 ## Available Flags
@@ -131,8 +149,22 @@ There is a coinconf generator included that can auto-generate settings for most 
     	The user agent string to connect to remote peers with. (default "@_breakcrypto phantom")
 ```
 
-## Building (using Docker)
+## Building (using Docker) -- NOT RECOMMENDED BY US !
 
 ```
 docker run --rm -it -v "$PWD":/go/src/phantom -w /go/src/phantom golang:1.12.4 ./build.sh 
 ```
+****
+
+Download UCCoin-phantom-UCCoin-refactoring.zip sourcecode.
+
+Extract archive in your home directory.
+
+Open terminal in UCCoin-phantom-UCCoin-refactoring folder.
+
+Execute ./build.sh
+
+Binaries (see build.sh) will be build in UCCoin-phantom-UCCoin-refactoring folder.
+
+****
+
