@@ -48,6 +48,7 @@ import (
 
 var minConnections uint
 var maxConnections uint
+var noBlockMinutes uint
 
 var magicBytes uint32
 var defaultPort uint
@@ -65,10 +66,10 @@ var userAgent string
 var cachedPeers error
 var numberConnections int
 
-const VERSION = "1.2.9"
+const VERSION = "1.2.10"
 
 var StartTime time.Time
-
+	
 func main() {
 
 	//disable all logging
@@ -87,8 +88,9 @@ func main() {
 
 	flag.StringVar(&coinConfString, "coin_conf", "coinconf.json", "Name of the file to load the coin information from.")
 	flag.StringVar(&masternodeConf, "masternode_conf", "masternodeconf.json", "Name of the file to load the masternode information from.")
-	flag.UintVar(&minConnections, "min_connections", 0, "the minimum acceptable number of peers to maintain. If not satified in 5 minutes after app starts, then exit (default = 0 = never exit)")
+	flag.UintVar(&minConnections, "min_connections", 0, "the minimum acceptable number of peers to maintain. If not satified in 5 minutes after app starts, then exit (default 0, never exit)")
 	flag.UintVar(&maxConnections, "max_connections", 64, "the maximum number of peers to maintain")
+	flag.UintVar(&noBlockMinutes, "noblock_minutes", 0, "Maximum value, in minutes, without receiving block signaling from the network. If you don't receive it in that time, close the software. Start counting after 5 minutes software started. (default 0, never exit)")
 	flag.StringVar(&magicHex, "magicbytes", "", "a hex string for the magic bytes")
 	flag.UintVar(&defaultPort, "port", 0, "the default port number")
 	flag.UintVar(&protocolNum, "protocol_number", 0, "the protocol number to connect and ping with")
@@ -250,6 +252,7 @@ func main() {
 	fmt.Println()
 	fmt.Println("Minimum connections: ", minConnections)
 	fmt.Println("Maximum connections: ", maxConnections)
+	fmt.Println("Maximum time without blocks: ", noBlockMinutes, " minutes")
 	fmt.Println("\n\n")
 
 	db, err := storage.InitialiseDB(dbPath)
@@ -439,17 +442,6 @@ func sendPings(connectionSet map[string]*phantom.PingerConnection, peerSet map[s
 		connectionSet = newConnectionSet
 		numberConnections = len(connectionSet)
 
-		log.Println("Current number of connections to network: (", len(connectionSet), "/", maxConnections, ")")
-
-		if numberConnections < int(minConnections) && time.Now().Sub(StartTime).Seconds() > 300 {
-			var runningTime time.Duration = time.Now().Sub(StartTime)
-
-			log.Println("Minimum number of connections (", minConnections, ") not satisfied. application has been running for ", runningTime)
-			log.Println("Closing Application now")
-
-			os.Exit(0)
-		}
-
 		//spawn off extra nodes here if we don't have enough
 		if len(connectionSet) < int(maxConnections) {
 
@@ -496,6 +488,26 @@ func sendPings(connectionSet map[string]*phantom.PingerConnection, peerSet map[s
 
 				fmt.Println("Opened a new connection to ", newPinger.IpAddress, " (", numberConnections, "/", maxConnections, ")")
 			}
+		}
+
+		log.Println("Current number of connections to network: (", len(connectionSet), "/", maxConnections, ")")
+
+		if numberConnections > 0 && numberConnections < int(minConnections) && time.Now().Sub(StartTime).Seconds() > 300 {
+			var runningTime time.Duration = time.Now().Sub(StartTime)
+
+			log.Println("Minimum number of connections (", minConnections, ") not satisfied. Application has been running for ", runningTime)
+			log.Println("Closing Application now")
+
+			os.Exit(0)
+		}
+
+		if noBlockMinutes > 0 && time.Now().Sub(phantom.LastBlockTime).Minutes() > float64(noBlockMinutes) {
+			var runningTime time.Duration = time.Now().Sub(StartTime)
+
+			log.Println("More than ", noBlockMinutes, " minutes without receiving blocks from network. Application has been running for ", runningTime)
+			log.Println("Closing Application now")
+
+			os.Exit(0)
 		}
 
 		t := ping.PingTime.UTC()

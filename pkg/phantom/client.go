@@ -38,7 +38,7 @@ import (
 	"strings"
 	"sync"
 	"time"
-
+	
 	"../socket/wire"
 	
 	"github.com/TrueNodes/btcd/chaincfg/chainhash"
@@ -64,6 +64,7 @@ type PingerConnection struct {
 var currentBlockHash = ""
 var currentMnBroadcast = ""
 var currentMnRelaying = ""
+var LastBlockTime time.Time = time.Now().Add(time.Minute * 5)
 
 func (pinger *PingerConnection) Start(userAgent string) {
 
@@ -170,6 +171,7 @@ func (pinger *PingerConnection) Start(userAgent string) {
 						if inventory.Type.String() == "MSG_BLOCK" {
 							if inventory.Hash.String() != currentBlockHash {
 								currentBlockHash = inventory.Hash.String()
+								LastBlockTime = time.Now()
 								log.Println("New block:", inventory.Hash.String())
 							}
 							pinger.HashChannel <- inventory.Hash
