@@ -1,0 +1,8 @@
+language: go
+sudo: false
+go:
+  - "1.x"
+script:
+  - cd cmd/phantom
+  - go get -t -v ./...
+  - go install -v ./...
