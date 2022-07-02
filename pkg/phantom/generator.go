@@ -42,11 +42,10 @@ import (
 	"time"
 
 	"../socket/wire"
-	
-	"github.com/TrueNodes/btcd/btcec"
-	"github.com/TrueNodes/btcd/btcec/ecdsa"
-	"github.com/TrueNodes/btcd/btcutil"
-	"github.com/TrueNodes/btcd/chaincfg/chainhash"
+	"github.com/btcsuite/btcd/btcec"
+	"github.com/btcsuite/btcd/btcec/ecdsa"
+	"github.com/btcsuite/btcd/chaincfg/chainhash"
+	"github.com/btcsuite/btcd/btcutil"
 )
 
 type MasternodePing struct {
@@ -120,7 +119,7 @@ func GeneratePingsFromMasternodeFile(filePath string, pingChannel chan Masternod
 		//add an epoch if missing and alert
 		if len(fields) == 5 {
 			log.Println("No epoch time found for: ", fields[0], " assuming one.")
-			fields = append(fields, strconv.FormatInt(currentTime.Add(time.Duration(i*5)*time.Second).Unix()-540, 10))
+			fields = append(fields, strconv.FormatInt(currentTime.Add(time.Duration(i)*time.Second).Unix()-540, 10))
 			i++
 		}
 

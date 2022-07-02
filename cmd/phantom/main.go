@@ -43,7 +43,7 @@ import (
 	"../../pkg/socket/wire"
 	"../../pkg/storage"
 
-	"github.com/TrueNodes/btcd/chaincfg/chainhash"
+	"github.com/btcsuite/btcd/chaincfg/chainhash"
 )
 
 var minConnections uint
@@ -69,7 +69,7 @@ var numberConnections int
 const VERSION = "1.2.10"
 
 var StartTime time.Time
-	
+
 func main() {
 
 	//disable all logging

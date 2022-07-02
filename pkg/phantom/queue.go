@@ -31,8 +31,8 @@ package phantom
 
 import (
 	"sync"
-	
-	"github.com/TrueNodes/btcd/chaincfg/chainhash"
+
+	"github.com/btcsuite/btcd/chaincfg/chainhash"
 )
 
 // Queue is a basic FIFO queue based on a circular list that resizes as needed.

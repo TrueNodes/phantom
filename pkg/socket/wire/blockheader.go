@@ -17,7 +17,7 @@ import (
 	"io"
 	"time"
 
-	"github.com/TrueNodes/btcd/chaincfg/chainhash"
+	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	//"unsafe"
 )
 

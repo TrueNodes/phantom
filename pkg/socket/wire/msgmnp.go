@@ -7,7 +7,7 @@ package wire
 import (
 	"io"
 
-	"github.com/TrueNodes/btcd/chaincfg/chainhash"
+	"github.com/btcsuite/btcd/chaincfg/chainhash"
 )
 
 // MsgPong implements the Message interface and represents a bitcoin pong
