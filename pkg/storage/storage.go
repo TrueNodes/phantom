@@ -50,7 +50,7 @@ func CachePeerToDB(db *bbolt.DB, peer string) error {
 		return nil
 	})
 
-	//log.Println("Peer added to cache", entry)
+	log.Println("Peer added to cache", entry)
 	defer db.Close()
 
 	return err

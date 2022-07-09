@@ -65,6 +65,7 @@ var currentBlockHash = ""
 var currentMnBroadcast = ""
 var currentMnRelaying = ""
 var LastBlockTime time.Time = time.Now().Add(time.Minute * 5)
+var lastConnectionError error
 
 func (pinger *PingerConnection) Start(userAgent string) {
 
@@ -107,7 +108,10 @@ func (pinger *PingerConnection) Start(userAgent string) {
 
 	tcpAddr, err := net.ResolveTCPAddr("tcp4", pinger.IpAddress+":"+strconv.Itoa(int(pinger.Port)))
 	if err != nil {
-		//	log.Println(err)
+		if err != lastConnectionError {
+			lastConnectionError = err
+			log.Println(err)
+		}
 		pinger.SetStatus(-1)
 		return
 	}
@@ -118,14 +122,17 @@ func (pinger *PingerConnection) Start(userAgent string) {
 	for {
 
 		if connectionAttempts >= 10 || len(pinger.PingChannel) > 10 {
-			//	log.Println("Unable to connect -- closing connection / channel too full.")
+			log.Println("Unable to connect -- closing connection / channel too full.")
 			pinger.SetStatus(-1)
 			return
 		}
 
 		conn, err := net.DialTCP("tcp", nil, tcpAddr)
 		if err != nil {
-			//	log.Println(err)
+			if err != lastConnectionError {
+				lastConnectionError = err
+				log.Println(err)
+			}
 			connectionAttempts++
 			continue
 		}
@@ -144,7 +151,7 @@ func (pinger *PingerConnection) Start(userAgent string) {
 
 			//connection failed, set the status to -1 and let it be reaped
 			if connectionAttempts >= 10 || len(pinger.PingChannel) > 10 {
-				//	log.Println("Unable to connect -- closing connection / channel too full (inside).")
+				log.Println("Unable to connect -- closing connection / channel too full (inside).")
 				pinger.SetStatus(-1)
 				return
 			}
@@ -153,15 +160,15 @@ func (pinger *PingerConnection) Start(userAgent string) {
 
 			if err != nil {
 				if strings.Contains(err.Error(), "unhandled command") {
-					//log.Println(err)
+					//	log.Println(err)
 					continue
 				}
-				//	log.Printf("%s : %s\n", pinger.IpAddress, err)
+				log.Printf("%s : %s\n", pinger.IpAddress, err)
 				connectionAttempts++
 				continue
 			} else {
 
-				//log.Println("COMMAND: ", msg.Command())
+				// log.Println("COMMAND: ", msg.Command())
 
 				connectionAttempts = 0
 
@@ -205,7 +212,7 @@ func (pinger *PingerConnection) Start(userAgent string) {
 					wire.WriteMessageN(&bufAddr, &getaddr, pinger.ProtocolNumber, magic)
 					conn.Write(bufAddr.Bytes())
 
-					//	log.Println("Sending getaddr")
+					log.Println("Sending getaddr")
 
 					defaultHash := chainhash.Hash{}
 					if pinger.BootstrapHash != defaultHash {
@@ -259,7 +266,7 @@ func (pinger *PingerConnection) Start(userAgent string) {
 				if msg.Command() == "addr" {
 					msgAddr := msg.(*wire.MsgAddr)
 					for _, addr := range msgAddr.AddrList {
-						//log.Println("PEER: ", addr.IP, ":", addr.Port)
+						log.Println("PEER: ", addr.IP, ":", addr.Port)
 						pinger.AddrChannel <- *addr
 					}
 				}

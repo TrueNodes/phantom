@@ -402,13 +402,13 @@ func sendPings(connectionSet map[string]*phantom.PingerConnection, peerSet map[s
 
 		sleepTime := ping.PingTime.Sub(time.Now())
 
+		t := ping.PingTime.UTC()
+
 		if sleepTime > 0 {
-			t := ping.PingTime.UTC()
-			log.Println(ping.Name, t.Format("15:04:05"), "sleeping for ", sleepTime.String())
+			// log.Println(ping.Name, t.Format("15:04:05"), "sleeping for ", sleepTime.String())
 			time.Sleep(sleepTime)
 		} else {
-			t := ping.PingTime.UTC()
-			log.Println(ping.Name, t.Format("15:04:05"))
+			log.Println(ping.Name, t.Format("15:04:05"), "awake")
 		}
 
 		//send the ping
@@ -419,21 +419,21 @@ func sendPings(connectionSet map[string]*phantom.PingerConnection, peerSet map[s
 			status := pinger.GetStatus()
 
 			if status < 0 || len(pinger.PingChannel) > 10 { //the pinger has had an error, close the channel
-				//fmt.Println("There's been an error, closing connection to ", pinger.IpAddress)
+				fmt.Println("There's been an error, closing connection to ", pinger.IpAddress)
 				pinger.SetStatus(-1)
 
-				//log.Printf("%s : Closing down the ping channel.\n", pinger.IpAddress )
+				log.Printf("%s : Closing down the ping channel.\n", pinger.IpAddress)
 				close(pinger.PingChannel) // don't add the closed pinger to the connectionArray
 
 				//remove the peer from the peerSet
 				delete(peerSet, pinger.IpAddress)
 			} else {
 				if status > 0 {
-					//log.Printf("%s : Pinging.", pinger.IpAddress)
+					log.Printf("%s : Pinging.", pinger.IpAddress)
 					pinger.PingChannel <- ping //only ping on connected pingers (1)
 				}
 				// this filters out bad connections, re-add unconnected peers just to be safe
-				//log.Printf("Re-added %s to the queue (channel #: %d).\n", pinger.IpAddress, len(pinger.PingChannel))
+				// log.Printf("Re-added %s to the queue (channel #: %d).\n", pinger.IpAddress, len(pinger.PingChannel))
 				newConnectionSet[pinger.IpAddress] = pinger
 			}
 		}
@@ -445,7 +445,7 @@ func sendPings(connectionSet map[string]*phantom.PingerConnection, peerSet map[s
 		//spawn off extra nodes here if we don't have enough
 		if len(connectionSet) < int(maxConnections) {
 
-			// log.Println("Under the max connection count, spawning new peer (", len(connectionSet), " / ", maxConnections, ")")
+			//	log.Println("Under the max connection count, spawning new peer (", len(connectionSet), " / ", maxConnections, ")")
 
 			for i := 0; i < int(maxConnections)-len(connectionSet); i++ {
 
@@ -490,8 +490,6 @@ func sendPings(connectionSet map[string]*phantom.PingerConnection, peerSet map[s
 			}
 		}
 
-		log.Println("Current number of connections to network: (", len(connectionSet), "/", maxConnections, ")")
-
 		if numberConnections > 0 && numberConnections < int(minConnections) && time.Now().Sub(StartTime).Seconds() > 300 {
 			var runningTime time.Duration = time.Now().Sub(StartTime)
 
@@ -509,9 +507,6 @@ func sendPings(connectionSet map[string]*phantom.PingerConnection, peerSet map[s
 
 			os.Exit(0)
 		}
-
-		t := ping.PingTime.UTC()
-		log.Println(ping.Name, t.Format("15:04:05"))
 	}
 
 	waitGroup.Done()

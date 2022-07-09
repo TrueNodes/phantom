@@ -118,7 +118,7 @@ func GeneratePingsFromMasternodeFile(filePath string, pingChannel chan Masternod
 
 		//add an epoch if missing and alert
 		if len(fields) == 5 {
-			log.Println("No epoch time found for: ", fields[0], " assuming one.")
+			// log.Println("No epoch time found for: ", fields[0], " assuming one.")
 			fields = append(fields, strconv.FormatInt(currentTime.Add(time.Duration(i)*time.Second).Unix()-540, 10))
 			i++
 		}
