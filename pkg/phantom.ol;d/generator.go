@@ -27,28 +27,26 @@
 *    it in the license file.
  */
 
-package generator
+package phantom
 
 import (
 	"bufio"
 	"bytes"
 	"encoding/hex"
 	"fmt"
+	"log"
 	"os"
 	"sort"
 	"strconv"
 	"strings"
 	"time"
 
-	"../../../pkg/socket/wire"
-	"../blockqueue"
-	"../broadcaststore"
-	"../events"
-	"github.com/btcsuite/btcd/btcec"
-	"github.com/btcsuite/btcd/btcec/ecdsa"
-	"github.com/btcsuite/btcd/chaincfg/chainhash"
+	"../../pkg/socket/wire"
+	
+	"github.com/btcsuite/btcd/btcec/v2"
+	"github.com/btcsuite/btcd/btcec/v2/ecdsa"
 	"github.com/btcsuite/btcd/btcutil"
-	log "github.com/sirupsen/logrus"
+	"github.com/btcsuite/btcd/chaincfg/chainhash"
 )
 
 type MasternodePing struct {
@@ -58,9 +56,9 @@ type MasternodePing struct {
 	PrivateKey        string
 	PingTime          time.Time
 	MagicMessage      string
-	UseOutpoint       bool
 	SentinelVersion   uint32
 	DaemonVersion     uint32
+	HashQueue         *Queue
 	BroadcastTemplate *wire.MsgMNB
 }
 
@@ -95,12 +93,8 @@ func determinePingTime(unixTime string) time.Time {
 	return base.Add(result)
 }
 
-func GeneratePingsFromMasternodeFile(filePath string,
-	magicMessage string,
-	useOutpoint bool,
-	sentinelVersion uint32,
-	daemonVersion uint32,
-	channels ...chan events.Event) {
+func GeneratePingsFromMasternodeFile(filePath string, pingChannel chan MasternodePing, queue *Queue,
+	magicMessage string, sentinelVersion uint32, daemonVersion uint32, broadcastSet map[string]wire.MsgMNB) {
 
 	currentTime := time.Now().UTC()
 
@@ -125,8 +119,8 @@ func GeneratePingsFromMasternodeFile(filePath string,
 
 		//add an epoch if missing and alert
 		if len(fields) == 5 {
-			log.Warn("No epoch time found for: ", fields[0], " assuming one.")
-			fields = append(fields, strconv.FormatInt(currentTime.Add(time.Duration(i*7)*time.Second).Unix()-540, 10))
+			log.Println("No epoch time found for: ", fields[0], " assuming one.")
+			fields = append(fields, strconv.FormatInt(currentTime.Add(time.Duration(i*5)*time.Second).Unix()-540, 10))
 			i++
 		}
 
@@ -146,20 +140,28 @@ func GeneratePingsFromMasternodeFile(filePath string,
 			fields[2],
 			determinePingTime(fields[5]),
 			magicMessage,
-			useOutpoint,
 			sentinelVersion,
 			daemonVersion,
+			queue,
 			nil,
 		}
 
-		//check for a broadcast template
-		broadcast := broadcaststore.GetInstance().GetBroadcast(ping.OutpointHash +
-			":" + strconv.Itoa(int(ping.OutpointIndex)))
+		if broadcastSet != nil {
+			//check for a broadcast template
+			broadcast, ok := broadcastSet[ping.OutpointHash+
+				":"+strconv.Itoa(int(ping.OutpointIndex))]
 
-		//provide the template
-		if broadcast != nil {
-			log.Debug("Broadcast template located for: ", broadcast.Vin.PreviousOutPoint.String())
-			ping.BroadcastTemplate = broadcast
+			//provide the template
+			if ok {
+				ping.BroadcastTemplate = &broadcast
+
+				//remove the broadcast after 24 hours
+				sigTime := time.Unix(int64(broadcast.SigTime), 0)
+				if sigTime.Add(time.Hour * 24).Before(time.Now().UTC()) {
+					delete(broadcastSet, ping.OutpointHash+
+						":"+strconv.Itoa(int(ping.OutpointIndex)))
+				}
+			}
 		}
 
 		pings = append(pings, ping)
@@ -170,36 +172,15 @@ func GeneratePingsFromMasternodeFile(filePath string,
 
 	//we have a sorted list of pings -- add them to the channel
 	for _, ping := range pings {
-		log.Info("Generating a ping for: ", ping.Name)
-
-		sleepTime := ping.PingTime.Sub(time.Now())
-
-		log.Debug(time.Now().UTC())
-		log.Info(ping.Name, " - ", ping.PingTime.UTC())
-
-		if sleepTime > 0 {
-			log.Info("Sleeping for ", sleepTime.String())
-			time.Sleep(sleepTime)
-		}
-
-		log.Debug(ping.Name, " ping being transmitted to the network.")
-
-		for _, channel := range channels {
-			pingCopy := ping
-
-			select {
-			case channel <- events.Event{events.NewPhantomPing, &pingCopy}:
-				log.Debug("Relayed ping: ", ping.Name)
-			default:
-				//fmt.Println("no message sent.")
-			}
-		}
+		//fmt.Println("Enabling: ", ping.Name)
+		log.Printf("%s : Enabling.\n", ping.Name)
+		pingChannel <- ping
 	}
+
 }
 
-func (ping *MasternodePing) GenerateMasternodePing(useOutpoint bool, sentinelVersion uint32, daemonVersion uint32) wire.MsgMNP {
-
-	mnp := wire.MsgMNP{UseOutpointForm: useOutpoint}
+func (ping *MasternodePing) GenerateMasternodePing(sentinelVersion uint32, daemonVersion uint32) wire.MsgMNP {
+	mnp := wire.MsgMNP{}
 
 	//add sentinel support
 	if sentinelVersion > 0 {
@@ -211,7 +192,7 @@ func (ping *MasternodePing) GenerateMasternodePing(useOutpoint bool, sentinelVer
 		mnp.DaemonVersion = daemonVersion
 	}
 
-	mnp.BlockHash = *blockqueue.GetInstance().GetTop()
+	mnp.BlockHash = *ping.HashQueue.Peek()
 
 	//setup the outpoint
 	var outpointHash chainhash.Hash

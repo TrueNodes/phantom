@@ -39,11 +39,11 @@ import (
 	"sync"
 	"time"
 
-	"../../pkg/phantom"
+	"../phantom"
 	"../../pkg/socket/wire"
 	"../../pkg/storage"
 
-	"github.com/TrueNodes/btcd/chaincfg/chainhash"
+	"../../pkg/btcsuite/btcd/chaincfg/chainhash"
 )
 
 var minConnections uint

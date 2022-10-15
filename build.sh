@@ -1,11 +1,15 @@
 #!/usr/bin/env bash
 
-export GO111MODULE=on
+export GO111MODULE=off
+export GOPATH=$(pwd)/gopath
 
 cd 'cmd/refactor'
 
 go get -d -v ./...
+#go get -u -v -f all
 go install -v ./...
+
+#godep save
 
 package_name="phantom-truenodes"
 

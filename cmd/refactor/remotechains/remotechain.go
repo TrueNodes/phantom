@@ -2,11 +2,11 @@ package remotechains
 
 import (
 	"encoding/json"
-	"github.com/breakcrypto/phantom/pkg/socket/wire"
+	"../../../pkg/socket/wire"
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"log"
 	"net"
-	"phantom/cmd/refactor/database"
+	"../database"
 	"strconv"
 	"strings"
 	"time"

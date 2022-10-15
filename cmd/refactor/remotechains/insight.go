@@ -7,7 +7,7 @@ import (
 	"io/ioutil"
 	log "github.com/sirupsen/logrus"
 	"net/http"
-	"phantom/cmd/refactor/database"
+	"../database"
 	"strconv"
 	"strings"
 )

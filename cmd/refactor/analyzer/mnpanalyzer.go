@@ -2,7 +2,7 @@ package analyzer
 
 import (
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
-	"phantom/pkg/socket/wire"
+	"../../../pkg/socket/wire"
 	"sync"
 	log "github.com/sirupsen/logrus"
 )

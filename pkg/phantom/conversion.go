@@ -4,12 +4,12 @@ import (
 	"errors"
 	log "github.com/sirupsen/logrus"
 	"net"
-	"phantom/cmd/refactor/database"
+	"../../cmd/refactor/database"
 	"strconv"
 	"strings"
 	"time"
-
-	"../socket/wire"
+	
+	"../../pkg/socket/wire"
 )
 
 func ConvertVersionStringToInt(str string) uint32 {

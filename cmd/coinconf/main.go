@@ -11,7 +11,7 @@ import (
 	"strconv"
 	"strings"
 	
-	"../../pkg/phantom"
+	"../phantom"
 )
 
 var coinName string

@@ -4,7 +4,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"net"
 	"os"
-	"phantom/cmd/refactor/database"
+	"../database"
 	"time"
 )
 

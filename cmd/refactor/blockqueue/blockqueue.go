@@ -3,7 +3,7 @@ package blockqueue
 import (
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	log "github.com/sirupsen/logrus"
-	"phantom/pkg/phantom"
+	"../../../pkg/phantom"
 	"sync"
 	"time"
 )

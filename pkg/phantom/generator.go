@@ -41,12 +41,12 @@ import (
 	"strings"
 	"time"
 
-	"../socket/wire"
+	"../../pkg/socket/wire"
 	
-	"github.com/TrueNodes/btcd/btcec"
-	"github.com/TrueNodes/btcd/btcec/ecdsa"
-	"github.com/TrueNodes/btcd/btcutil"
-	"github.com/TrueNodes/btcd/chaincfg/chainhash"
+	"github.com/btcsuite/btcd/btcec"
+	"github.com/btcsuite/btcd/btcec/ecdsa"
+	"github.com/btcsuite/btcd/btcutil"
+	"github.com/btcsuite/btcd/chaincfg/chainhash"
 )
 
 type MasternodePing struct {

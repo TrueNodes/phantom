@@ -3,7 +3,7 @@ package remotechains
 import (
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/pkg/errors"
-	"phantom/cmd/refactor/database"
+	"../database"
 )
 
 type RPCExplorer struct {

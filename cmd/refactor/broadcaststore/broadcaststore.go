@@ -1,7 +1,7 @@
 package broadcaststore
 
 import (
-	"phantom/pkg/socket/wire"
+	"../../../pkg/socket/wire"
 	"strconv"
 	"sync"
 	"time"
