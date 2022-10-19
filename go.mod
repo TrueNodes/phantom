@@ -3,7 +3,6 @@ module phantom
 go 1.17
 
 require (
-	github.com/breakcrypto/phantom v0.0.5
 	github.com/btcsuite/btcd/btcec/v2 v2.1.3
 	github.com/btcsuite/btcd/btcutil v1.1.0
 	github.com/btcsuite/btcd/chaincfg/chainhash v1.0.1
