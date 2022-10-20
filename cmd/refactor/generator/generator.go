@@ -125,7 +125,7 @@ func GeneratePingsFromMasternodeFile(filePath string,
 
 		//add an epoch if missing and alert
 		if len(fields) == 5 {
-			log.Warn("No epoch time found for: ", fields[0], " assuming one.")
+			log.Debug("No epoch time found for: ", fields[0], " assuming one.")
 			fields = append(fields, strconv.FormatInt(currentTime.Add(time.Duration(i*7)*time.Second).Unix()-540, 10))
 			i++
 		}
