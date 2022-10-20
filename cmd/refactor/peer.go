@@ -1,15 +1,15 @@
 package main
 
 import (
+	"../../pkg/socket/wire"
+	"./database"
+	"./events"
+	"./generator"
 	"bufio"
 	"bytes"
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	log "github.com/sirupsen/logrus"
 	"net"
-	"./database"
-	"./events"
-	"./generator"
-	"../../pkg/socket/wire"
 	"strconv"
 	"strings"
 	"sync"
@@ -17,20 +17,20 @@ import (
 )
 
 type PeerConnection struct {
-	MagicBytes uint32
-	PeerInfo database.Peer
-	ProtocolNumber uint32
-	MagicMessage string
-	SentinelVersion uint32
-	DaemonVersion uint32
+	MagicBytes        uint32
+	PeerInfo          database.Peer
+	ProtocolNumber    uint32
+	MagicMessage      string
+	SentinelVersion   uint32
+	DaemonVersion     uint32
 	UseOutpointFormat bool
-	BroadcastListen bool
-	Autosense bool
-	UserAgent string
-	OutboundEvents chan events.Event
-	InboundEvents chan events.Event
-	Status int8
-	mutex sync.Mutex
+	BroadcastListen   bool
+	Autosense         bool
+	UserAgent         string
+	OutboundEvents    chan events.Event
+	InboundEvents     chan events.Event
+	Status            int8
+	mutex             sync.Mutex
 }
 
 //CONVERT READS AND WRITES INTO FUNCTIONS THAT TAKE BYTES AND SET TIMEOUTS/ERRORS
@@ -89,7 +89,7 @@ func (pinger *PeerConnection) Start(bootstrapHash *chainhash.Hash, userAgent str
 		if connectionAttempts >= 10 || len(pinger.InboundEvents) > 10 {
 			log.Debug("Unable to connect -- closing connection.")
 			pinger.SetStatus(-1)
-			pinger.OutboundEvents <- events.Event{Type:events.PeerDisconnect, Data:pinger}
+			pinger.OutboundEvents <- events.Event{Type: events.PeerDisconnect, Data: pinger}
 			return
 		}
 
@@ -97,7 +97,7 @@ func (pinger *PeerConnection) Start(bootstrapHash *chainhash.Hash, userAgent str
 		conn, err := d.Dial("tcp", net.JoinHostPort(
 			pinger.PeerInfo.Address, strconv.Itoa(int(pinger.PeerInfo.Port))))
 
-		if (err != nil) {
+		if err != nil {
 			log.Debug(err)
 			connectionAttempts += 10
 			continue
@@ -113,7 +113,7 @@ func (pinger *PeerConnection) Start(bootstrapHash *chainhash.Hash, userAgent str
 		for {
 
 			if pinger.GetStatus() < 0 {
-				pinger.OutboundEvents <- events.Event{Type:events.PeerDisconnect, Data:pinger}
+				pinger.OutboundEvents <- events.Event{Type: events.PeerDisconnect, Data: pinger}
 				return
 			}
 
@@ -122,7 +122,7 @@ func (pinger *PeerConnection) Start(bootstrapHash *chainhash.Hash, userAgent str
 				log.Debug("Unable to connect -- closing connection.")
 				pinger.SetStatus(-1)
 
-				pinger.OutboundEvents <- events.Event{Type:events.PeerDisconnect, Data:pinger}
+				pinger.OutboundEvents <- events.Event{Type: events.PeerDisconnect, Data: pinger}
 
 				return
 			}
@@ -131,10 +131,10 @@ func (pinger *PeerConnection) Start(bootstrapHash *chainhash.Hash, userAgent str
 			conn.SetReadDeadline(time.Now().Add(2 * time.Minute))
 			_, msg, _, errRead := wire.ReadMessageN(bufReader, pinger.ProtocolNumber, magic)
 
-			if (errRead != nil) {
+			if errRead != nil {
 				if err, ok := errRead.(net.Error); ok && err.Timeout() {
-					log.Error("Connection timeout. Bail.")
-					pinger.OutboundEvents <- events.Event{Type:events.PeerDisconnect, Data:pinger}
+					log.Error(pinger.PeerInfo.Address, ":", pinger.PeerInfo.Port, " -> ", "Connection timeout. Bail.")
+					pinger.OutboundEvents <- events.Event{Type: events.PeerDisconnect, Data: pinger}
 					return
 				}
 
@@ -152,16 +152,18 @@ func (pinger *PeerConnection) Start(bootstrapHash *chainhash.Hash, userAgent str
 
 				connectionAttempts = 0
 
-				if (msg.Command() == "inv") {
+				if msg.Command() == "inv" {
 					inv := msg.(*wire.MsgInv)
 
-					for _, inventory := range (inv.InvList) {
+					for _, inventory := range inv.InvList {
 
 						log.Debug("INVENTORY TYPE: ", inventory.Type)
 
 						if inventory.Type.String() == "MSG_BLOCK" {
 							log.Debug("New block received: " + inventory.Hash.String())
 							pinger.OutboundEvents <- events.Event{events.NewBlock, &inventory.Hash}
+
+							LastBlockTime = time.Now()
 						}
 
 						if inventory.Type == 14 && pinger.BroadcastListen {
@@ -175,8 +177,8 @@ func (pinger *PeerConnection) Start(bootstrapHash *chainhash.Hash, userAgent str
 							conn.SetWriteDeadline(time.Now().Add(30 * time.Second))
 							_, err = conn.Write(buf.Bytes())
 							if err, ok := err.(net.Error); ok && err.Timeout() {
-								log.Error("Connection timeout. Bail.")
-								pinger.OutboundEvents <- events.Event{Type:events.PeerDisconnect, Data:pinger}
+								log.Error(pinger.PeerInfo.Address, ":", pinger.PeerInfo.Port, " -> ", "Connection timeout. Bail.")
+								pinger.OutboundEvents <- events.Event{Type: events.PeerDisconnect, Data: pinger}
 								return
 							}
 						}
@@ -192,15 +194,15 @@ func (pinger *PeerConnection) Start(bootstrapHash *chainhash.Hash, userAgent str
 							conn.SetWriteDeadline(time.Now().Add(30 * time.Second))
 							_, err = conn.Write(buf.Bytes())
 							if err, ok := err.(net.Error); ok && err.Timeout() {
-								log.Error("Connection timeout. Bail.")
-								pinger.OutboundEvents <- events.Event{Type:events.PeerDisconnect, Data:pinger}
+					log.Error(pinger.PeerInfo.Address, ":", pinger.PeerInfo.Port, " -> ", "Connection timeout. Bail.")
+								pinger.OutboundEvents <- events.Event{Type: events.PeerDisconnect, Data: pinger}
 								return
 							}
 						}
 					}
 				}
 
-				if (msg.Command() == "version") {
+				if msg.Command() == "version" {
 					verack := wire.MsgVerAck{}
 
 					var buf bytes.Buffer
@@ -209,8 +211,8 @@ func (pinger *PeerConnection) Start(bootstrapHash *chainhash.Hash, userAgent str
 					conn.SetWriteDeadline(time.Now().Add(30 * time.Second))
 					_, err = conn.Write(buf.Bytes())
 					if err, ok := err.(net.Error); ok && err.Timeout() {
-						log.Error("Connection timeout. Bail.")
-						pinger.OutboundEvents <- events.Event{Type:events.PeerDisconnect, Data:pinger}
+					log.Error(pinger.PeerInfo.Address, ":", pinger.PeerInfo.Port, " -> ", "Connection timeout. Bail.")
+						pinger.OutboundEvents <- events.Event{Type: events.PeerDisconnect, Data: pinger}
 						return
 					}
 
@@ -225,8 +227,8 @@ func (pinger *PeerConnection) Start(bootstrapHash *chainhash.Hash, userAgent str
 					conn.SetWriteDeadline(time.Now().Add(30 * time.Second))
 					_, err = conn.Write(bufAddr.Bytes())
 					if err, ok := err.(net.Error); ok && err.Timeout() {
-						log.Error("Connection timeout. Bail.")
-						pinger.OutboundEvents <- events.Event{Type:events.PeerDisconnect, Data:pinger}
+							log.Error(pinger.PeerInfo.Address, ":", pinger.PeerInfo.Port, " -> ", "Connection timeout. Bail.")
+						pinger.OutboundEvents <- events.Event{Type: events.PeerDisconnect, Data: pinger}
 						return
 					}
 
@@ -245,8 +247,8 @@ func (pinger *PeerConnection) Start(bootstrapHash *chainhash.Hash, userAgent str
 						conn.SetWriteDeadline(time.Now().Add(30 * time.Second))
 						_, err = conn.Write(bufBlocks.Bytes())
 						if err, ok := err.(net.Error); ok && err.Timeout() {
-							log.Error("Connection timeout. Bail.")
-							pinger.OutboundEvents <- events.Event{Type:events.PeerDisconnect, Data:pinger}
+									log.Error(pinger.PeerInfo.Address, ":", pinger.PeerInfo.Port, " -> ", "Connection timeout. Bail.")
+							pinger.OutboundEvents <- events.Event{Type: events.PeerDisconnect, Data: pinger}
 							return
 						}
 
@@ -254,7 +256,7 @@ func (pinger *PeerConnection) Start(bootstrapHash *chainhash.Hash, userAgent str
 					}
 				}
 
-				if (msg.Command() == "ping") {
+				if msg.Command() == "ping" {
 
 					ping := msg.(*wire.MsgPing)
 
@@ -266,12 +268,15 @@ func (pinger *PeerConnection) Start(bootstrapHash *chainhash.Hash, userAgent str
 					conn.SetWriteDeadline(time.Now().Add(30 * time.Second))
 					_, err = conn.Write(buf.Bytes())
 					if err, ok := err.(net.Error); ok && err.Timeout() {
-						log.Error("Connection timeout. Bail.")
-						pinger.OutboundEvents <- events.Event{Type:events.PeerDisconnect, Data:pinger}
+					log.Error(pinger.PeerInfo.Address, ":", pinger.PeerInfo.Port, " -> ", "Connection timeout. Bail.")
+						pinger.OutboundEvents <- events.Event{Type: events.PeerDisconnect, Data: pinger}
 						return
 					}
 
-					log.Info(pinger.PeerInfo.Address, " : PONG!")
+					log.Info(pinger.PeerInfo.Address, ":", pinger.PeerInfo.Port, " -> "," pong!")
+
+					pinger.PeerInfo.LastSeen = time.Now()
+					LastPingtime = time.Now()
 
 					//clear out the message map
 					for hash, message := range messageMap {
@@ -295,19 +300,19 @@ func (pinger *PeerConnection) Start(bootstrapHash *chainhash.Hash, userAgent str
 					}
 				}
 
-				if (msg.Command() == "addr") {
+				if msg.Command() == "addr" {
 					msgAddr := msg.(*wire.MsgAddr)
 					for _, addr := range msgAddr.AddrList {
 						//log.Println("PEER: ", addr.IP, ":", addr.Port)
-						pinger.OutboundEvents <- events.Event{events.NewAddr,addr}
+						pinger.OutboundEvents <- events.Event{events.NewAddr, addr}
 					}
 				}
 
 				//let broadcast channels relay back broadcasts
-				if (msg.Command() == "mnb") {
+				if msg.Command() == "mnb" {
 					mnb := msg.(*wire.MsgMNB)
 					log.Debug("Masternode broadcast detected for: ", mnb.Vin.PreviousOutPoint.String())
-					pinger.OutboundEvents <- events.Event{events.NewMasternodeBroadcast,mnb}
+					pinger.OutboundEvents <- events.Event{events.NewMasternodeBroadcast, mnb}
 
 				}
 
@@ -315,7 +320,7 @@ func (pinger *PeerConnection) Start(bootstrapHash *chainhash.Hash, userAgent str
 				if msg.Command() == "mnp" && pinger.Autosense {
 					mnp := msg.(*wire.MsgMNP)
 					log.Debug("Masternode ping detected. Sending back to daemon for analysis.")
-					pinger.OutboundEvents <- events.Event{events.NewMasternodePing,mnp}
+					pinger.OutboundEvents <- events.Event{events.NewMasternodePing, mnp}
 				}
 
 				//non-blocking select
@@ -351,8 +356,8 @@ func (pinger *PeerConnection) Start(bootstrapHash *chainhash.Hash, userAgent str
 							conn.SetWriteDeadline(time.Now().Add(30 * time.Second))
 							_, err = conn.Write(byteData)
 							if err, ok := err.(net.Error); ok && err.Timeout() {
-								log.Error("Connection timeout. Bail.")
-								pinger.OutboundEvents <- events.Event{Type:events.PeerDisconnect, Data:pinger}
+								log.Error(pinger.PeerInfo.Address, ":", pinger.PeerInfo.Port, " -> ", "Connection timeout. Bail.")
+								pinger.OutboundEvents <- events.Event{Type: events.PeerDisconnect, Data: pinger}
 								return
 							}
 
@@ -382,8 +387,8 @@ func (pinger *PeerConnection) Start(bootstrapHash *chainhash.Hash, userAgent str
 						conn.SetWriteDeadline(time.Now().Add(30 * time.Second))
 						_, err = conn.Write(buf.Bytes())
 						if err, ok := err.(net.Error); ok && err.Timeout() {
-							log.Error("Connection timeout. Bail.")
-							pinger.OutboundEvents <- events.Event{Type:events.PeerDisconnect, Data:pinger}
+								log.Error(pinger.PeerInfo.Address, ":", pinger.PeerInfo.Port, " -> ", "Connection timeout. Bail.")
+							pinger.OutboundEvents <- events.Event{Type: events.PeerDisconnect, Data: pinger}
 							return
 						}
 
@@ -398,7 +403,7 @@ func (pinger *PeerConnection) Start(bootstrapHash *chainhash.Hash, userAgent str
 				}
 
 				//this should really be a hashMap with expiring entries
-				if (msg.Command() == "getdata") {
+				if msg.Command() == "getdata" {
 
 					getData := msg.(*wire.MsgGetData)
 
@@ -413,8 +418,8 @@ func (pinger *PeerConnection) Start(bootstrapHash *chainhash.Hash, userAgent str
 							conn.SetWriteDeadline(time.Now().Add(30 * time.Second))
 							_, err = conn.Write(buf.Bytes())
 							if err, ok := err.(net.Error); ok && err.Timeout() {
-								log.Error("Connection timeout. Bail.")
-								pinger.OutboundEvents <- events.Event{Type:events.PeerDisconnect, Data:pinger}
+										log.Error(pinger.PeerInfo.Address, ":", pinger.PeerInfo.Port, " -> ", "Connection timeout. Bail.")
+								pinger.OutboundEvents <- events.Event{Type: events.PeerDisconnect, Data: pinger}
 								return
 							}
 
@@ -441,7 +446,7 @@ func (pinger *PeerConnection) SetStatus(status int8) {
 	pinger.Status = status
 }
 
-func (pinger *PeerConnection) GetStatus() (int8) {
+func (pinger *PeerConnection) GetStatus() int8 {
 	pinger.mutex.Lock()
 	defer pinger.mutex.Unlock()
 

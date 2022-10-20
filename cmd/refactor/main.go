@@ -2,8 +2,14 @@ package main
 
 import (
 	"flag"
-	"github.com/btcsuite/btcd/chaincfg/chainhash"
-	log "github.com/sirupsen/logrus"
+	"math"
+	"os"
+	"strconv"
+	"strings"
+	"time"
+
+	"../../pkg/phantom"
+	"../../pkg/socket/wire"
 	"./analyzer"
 	"./blockqueue"
 	"./broadcaststore"
@@ -13,11 +19,8 @@ import (
 	"./events"
 	"./generator"
 	"./remotechains"
-	"../../pkg/phantom"
-	"../../pkg/socket/wire"
-	"strconv"
-	"strings"
-	"time"
+	"github.com/btcsuite/btcd/chaincfg/chainhash"
+	log "github.com/sirupsen/logrus"
 )
 
 type PeerCollection struct {
@@ -26,6 +29,8 @@ type PeerCollection struct {
 
 type PhantomDaemon struct {
 	MaxConnections  uint
+	MinConnections  uint
+	NoblockMinutes  uint
 	BootstrapIPs    string
 	DNSSeeds        string
 	BootstrapHash   chainhash.Hash
@@ -57,6 +62,16 @@ func (p *PeerCollection) Contains(peerToCheck *database.Peer) bool {
 		}
 	}
 	return false
+}
+
+func (p *PeerCollection) CountPeers() int {
+	var counter = 0
+	for _, peer := range p.PeerConnections {
+		if time.Now().Sub(peer.PeerInfo.LastSeen).Minutes() < 20 {
+			counter++
+		}
+	}
+	return counter
 }
 
 var peerCollection PeerCollection
@@ -95,6 +110,14 @@ func main() {
 	flag.UintVar(&phantomDaemon.MaxConnections, "max_connections",
 		10,
 		"the number of peers to maintain")
+
+	flag.UintVar(&phantomDaemon.MinConnections, "min_connections",
+		0,
+		"the minimum number of peers to maintain. 0 is disabled")
+
+	flag.UintVar(&phantomDaemon.NoblockMinutes, "noblock_minutes",
+		0,
+		"the maximum number (in minutes) without receiving blocks. 0 is disabled")
 
 	flag.StringVar(&magicHex, "magicbytes",
 		"",
@@ -188,6 +211,14 @@ func main() {
 				phantomDaemon.MaxConnections = uint(*coinConf.MaxConnections)
 			}
 
+			if coinConf.MinConnections != nil {
+				phantomDaemon.MinConnections = uint(*coinConf.MinConnections)
+			}
+
+			if coinConf.NoblockMinutes != nil {
+				phantomDaemon.NoblockMinutes = uint(*coinConf.NoblockMinutes)
+			}
+
 			if magicHex == "" {
 				magicHex = coinConf.Magicbytes
 			}
@@ -232,7 +263,7 @@ func main() {
 				daemonString = coinConf.DaemonVersion
 			}
 
-			if phantomDaemon.PeerConnectionTemplate.UserAgent == "@_breakcrypto's phantoms" &&
+			if phantomDaemon.PeerConnectionTemplate.UserAgent == "TrueNodes - Hospedagem de Masternodes" &&
 				coinConf.UserAgent != "" {
 				phantomDaemon.PeerConnectionTemplate.UserAgent = coinConf.UserAgent
 			}
@@ -246,8 +277,6 @@ func main() {
 			}
 		}
 	}
-
-	magicMsgNewLine = true
 
 	magicBytes64, _ := strconv.ParseUint(magicHex, 16, 32)
 	phantomDaemon.PeerConnectionTemplate.MagicBytes = uint32(magicBytes64)
@@ -292,7 +321,9 @@ func main() {
 
 	log.WithFields(log.Fields{
 		"masternode_conf": phantomDaemon.MasternodeConf,
+		"min_connections": phantomDaemon.MinConnections,
 		"max_connections": phantomDaemon.MaxConnections,
+		"noblock_minutes": phantomDaemon.NoblockMinutes,
 		"magic_bytes": strings.ToUpper(strconv.FormatInt(
 			int64(phantomDaemon.PeerConnectionTemplate.MagicBytes), 16)),
 		"magic_message":    phantomDaemon.PeerConnectionTemplate.MagicMessage,
@@ -324,6 +355,9 @@ func (p *PhantomDaemon) Start() {
 
 	//allocate the peer channels
 	peerChannels := p.allocatePeerChannels(p.MaxConnections)
+
+	//start monitoring for cases that require restart (noblock_minutes and min_connections)
+	go p.MonitorForNeededRestart()
 
 	//setup the event channel that all peers will broadcast to
 	var daemonEventChannel = make(chan events.Event)
@@ -558,5 +592,35 @@ func (p *PhantomDaemon) spawnNewPeer(inboundEventChannel chan events.Event, outb
 func drainChannel(channel chan events.Event) {
 	for len(channel) > 0 {
 		<-channel
+	}
+}
+
+var StartTime time.Time = time.Now()
+var LastBlockTime time.Time = time.Now().Add(time.Minute * 5)
+var LastPingtime time.Time = time.Now().Add(time.Minute * 5)
+
+func (p *PhantomDaemon) MonitorForNeededRestart() {
+	StartTime = time.Now()
+
+	for {
+		//check every minute
+		time.Sleep(time.Minute * 1)
+		var num = peerCollection.CountPeers()
+	
+		//active is LastSeen in minus than 20 minutes ago
+		log.Info("Active Connections: ", num, " (total: ", len(peerCollection.PeerConnections),", min: ", p.MinConnections, ", max: ", p.MaxConnections, ")")
+		if p.MinConnections > 0 && num < int(p.MinConnections) && time.Now().Sub(StartTime).Seconds() > 300 {
+			runningTime := time.Now().Sub(StartTime)
+			withoutPingTime := time.Now().Sub(LastPingtime)
+			log.Error("Under minimum number of connections (even 5 minutes after phantom start). Phantom running for ", math.Floor(runningTime.Hours()/24), "d ", math.Floor(math.Remainder(runningTime.Hours(), 24)), "h ", math.Floor(math.Remainder(runningTime.Minutes(), 24)), "m ", math.Floor(math.Remainder(runningTime.Seconds(), 24)), "s ", "Without ping for ", math.Floor(withoutPingTime.Hours()/24), "d ", math.Floor(math.Remainder(withoutPingTime.Hours(), 24)), "h ", math.Floor(math.Remainder(withoutPingTime.Minutes(), 24)), "m ", math.Floor(math.Remainder(withoutPingTime.Seconds(), 24)), "s ")
+			os.Exit(0)
+		}
+
+		if p.NoblockMinutes > 0 && math.Floor(time.Now().Sub(LastBlockTime).Minutes()) > float64(p.NoblockMinutes) && time.Now().Sub(StartTime).Seconds() > 300 {
+			runningTime := time.Now().Sub(StartTime)
+			withoutPingTime := time.Now().Sub(LastPingtime)
+			log.Error("More than ", p.NoblockMinutes, " minutes without receiving new blocks. Phantom running for ", math.Floor(runningTime.Hours()/24), "d ", math.Floor(math.Remainder(runningTime.Hours(), 24)), "h ", math.Floor(math.Remainder(runningTime.Minutes(), 24)), "m ", math.Floor(math.Remainder(runningTime.Seconds(), 24)), "s ", "Without ping for ", math.Floor(withoutPingTime.Hours()/24), "d ", math.Floor(math.Remainder(withoutPingTime.Hours(), 24)), "h ", math.Floor(math.Remainder(withoutPingTime.Minutes(), 24)), "m ", math.Floor(math.Remainder(withoutPingTime.Seconds(), 24)), "s ")
+			os.Exit(0)
+		}
 	}
 }

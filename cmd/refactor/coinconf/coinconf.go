@@ -10,6 +10,8 @@ import (
 type CoinConf struct {
 	Name                string 	`json:"name"`
 	MaxConnections		*uint32 `json:max_connections,omitempty`
+	MinConnections		*uint32 `json:min_connections,omitempty`
+	NoblockMinutes		*uint32 `json:noblock_minutes,omitempty`
 	Magicbytes          string 	`json:"magicbytes"`
 	Port                uint32 	`json:"port"`
 	ProtocolNumber      uint32 	`json:"protocol_number"`

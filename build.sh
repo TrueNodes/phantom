@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 export GO111MODULE=off
-export GOPATH=$(pwd)/gopath
+export GOPATH=$(pwd)/gopath:$(pwd)/pkg
 
 cd 'cmd/refactor'
 
@@ -11,7 +11,7 @@ go install -v ./...
 
 #godep save
 
-package_name="phantom-truenodes"
+package_name="re-phantom-truenodes"
 
 platforms=( "linux/amd64" "linux/arm64" "aix/ppc64" "android/arm64" "darwin/amd64" "darwin/arm64" "dragonfly/amd64" "freebsd/386" "freebsd/amd64" "freebsd/arm" "freebsd/arm64" "illumos/amd64" "linux/386" "linux/arm" "linux/mips" "linux/mips64" "linux/mips64le" "linux/mipsle" "linux/ppc64" "linux/ppc64le" "linux/riscv64" "linux/s390x" "netbsd/386" "netbsd/amd64" "netbsd/arm" "netbsd/arm64" "openbsd/386" "openbsd/amd64" "openbsd/arm" "openbsd/arm64" "openbsd/mips64" "solaris/amd64" "windows/386" "windows/amd64" "windows/arm" "windows/arm64" )
 unsuported_platforms_for_now=( "android/386" "android/amd64" "android/arm" "ios/amd64" "ios/arm64" "js/wasm" "plan9/386" "plan9/amd64" "plan9/arm" )
