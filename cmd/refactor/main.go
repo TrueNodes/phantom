@@ -25,14 +25,14 @@ type PeerCollection struct {
 }
 
 type PhantomDaemon struct {
-	MaxConnections uint
-	BootstrapIPs string
-	DNSSeeds string
-	BootstrapHash chainhash.Hash
+	MaxConnections  uint
+	BootstrapIPs    string
+	DNSSeeds        string
+	BootstrapHash   chainhash.Hash
 	BootstrapChains []remotechains.RemoteChain
-	MasternodeConf string
-	CoinCon phantom.CoinConf
-	DefaultPort uint
+	MasternodeConf  string
+	CoinCon         phantom.CoinConf
+	DefaultPort     uint
 	PeerConnections []database.Peer
 	//for the peers
 	PeerConnectionTemplate PeerConnection
@@ -67,7 +67,7 @@ func init() {
 }
 
 func main() {
-	const VERSION = "0.1.0"
+	const VERSION = "2.0.0-beta"
 
 	var done chan bool
 
@@ -77,7 +77,7 @@ func main() {
 	phantomDaemon := PhantomDaemon{}
 
 	var magicHex string
-	var magicMsgNewLine bool
+	var magicMsgNewLine bool = true
 	var protocolNum uint
 	var bootstrapHashStr string
 	var bootstrapChainsStr string
@@ -86,10 +86,10 @@ func main() {
 	var coinConfString string
 	var debugLogging bool
 
-	flag.StringVar(&coinConfString, "coin_conf", "", "Name of the file to load the coin information from.")
+	flag.StringVar(&coinConfString, "coin_conf", "coinconf.json", "Name of the file to load the coin information from.")
 
 	flag.StringVar(&phantomDaemon.MasternodeConf, "masternode_conf",
-		"masternode.txt",
+		"masternode.conf",
 		"Name of the file to load the masternode information from.")
 
 	flag.UintVar(&phantomDaemon.MaxConnections, "max_connections",
@@ -109,7 +109,7 @@ func main() {
 		"the protocol number to connect and ping with")
 
 	flag.StringVar(&phantomDaemon.PeerConnectionTemplate.MagicMessage, "magic_message",
-		"",
+		"DarkNet Signed Message:",
 		"the signing message")
 
 	flag.BoolVar(&magicMsgNewLine,
@@ -148,12 +148,12 @@ func main() {
 
 	flag.StringVar(&phantomDaemon.PeerConnectionTemplate.UserAgent,
 		"user_agent",
-		"@_breakcrypto's phantoms",
+		"TrueNodes - Masternode Hosting",
 		"The user agent string to connect to remote peers with.")
 
 	flag.BoolVar(&phantomDaemon.PeerConnectionTemplate.BroadcastListen,
 		"broadcast_listen",
-		false,
+		true,
 		"If set to true, the phantom will listen for new broadcasts and cache them for 4 hours.")
 
 	flag.BoolVar(&phantomDaemon.PeerConnectionTemplate.Autosense,
@@ -272,7 +272,7 @@ func main() {
 	}
 
 	if bootstrapHashStr != "" {
-		chainhash.Decode(&phantomDaemon.BootstrapHash,bootstrapHashStr)
+		chainhash.Decode(&phantomDaemon.BootstrapHash, bootstrapHashStr)
 	}
 
 	if bootstrapChainsStr != "" {
@@ -291,13 +291,14 @@ func main() {
 	}
 
 	log.WithFields(log.Fields{
-		"masternode_conf":  phantomDaemon.MasternodeConf,
-		"magic_bytes":      strings.ToUpper(strconv.FormatInt(
+		"masternode_conf": phantomDaemon.MasternodeConf,
+		"max_connections": phantomDaemon.MaxConnections,
+		"magic_bytes": strings.ToUpper(strconv.FormatInt(
 			int64(phantomDaemon.PeerConnectionTemplate.MagicBytes), 16)),
 		"magic_message":    phantomDaemon.PeerConnectionTemplate.MagicMessage,
 		"protocol_number":  phantomDaemon.PeerConnectionTemplate.ProtocolNumber,
 		"bootstrap_ips":    phantomDaemon.BootstrapIPs,
-		"bootstrap_chains":    bootstrapChainsStr,
+		"bootstrap_chains": bootstrapChainsStr,
 		"bootstrap_hash":   phantomDaemon.BootstrapHash.String(),
 		"autosense":        phantomDaemon.PeerConnectionTemplate.Autosense,
 		"broadcast_listen": phantomDaemon.PeerConnectionTemplate.BroadcastListen,
@@ -306,7 +307,7 @@ func main() {
 		"user_agent":       phantomDaemon.PeerConnectionTemplate.UserAgent,
 		"dns_seeds":        phantomDaemon.DNSSeeds,
 		"default_port":     phantomDaemon.DefaultPort,
-		"debug":     		debugLogging,
+		"debug":            debugLogging,
 	}).Info("Using the following settings.")
 
 	phantomDaemon.Start()
@@ -384,17 +385,17 @@ func (p *PhantomDaemon) Start() {
 	peers := peerdb.GetRandomPeers(p.MaxConnections)
 	for i, peer := range peers {
 		peerConn := PeerConnection{
-			MagicBytes: p.PeerConnectionTemplate.MagicBytes,
-			ProtocolNumber: p.PeerConnectionTemplate.ProtocolNumber,
-			MagicMessage: p.PeerConnectionTemplate.MagicMessage,
-			PeerInfo:peer,
-			InboundEvents:peerChannels[i],
-			OutboundEvents:daemonEventChannel,
-			SentinelVersion:p.PeerConnectionTemplate.SentinelVersion,
-			DaemonVersion:p.PeerConnectionTemplate.DaemonVersion,
-			UseOutpointFormat:p.PeerConnectionTemplate.UseOutpointFormat,
-			Autosense:p.PeerConnectionTemplate.Autosense,
-			BroadcastListen:p.PeerConnectionTemplate.BroadcastListen,
+			MagicBytes:        p.PeerConnectionTemplate.MagicBytes,
+			ProtocolNumber:    p.PeerConnectionTemplate.ProtocolNumber,
+			MagicMessage:      p.PeerConnectionTemplate.MagicMessage,
+			PeerInfo:          peer,
+			InboundEvents:     peerChannels[i],
+			OutboundEvents:    daemonEventChannel,
+			SentinelVersion:   p.PeerConnectionTemplate.SentinelVersion,
+			DaemonVersion:     p.PeerConnectionTemplate.DaemonVersion,
+			UseOutpointFormat: p.PeerConnectionTemplate.UseOutpointFormat,
+			Autosense:         p.PeerConnectionTemplate.Autosense,
+			BroadcastListen:   p.PeerConnectionTemplate.BroadcastListen,
 		}
 
 		log.WithField("peer ip", peer).Debug("Starting new peer.")
@@ -403,8 +404,8 @@ func (p *PhantomDaemon) Start() {
 	}
 
 	//start the ping generator
-		//auto-sense enabled?
-		//if so don't start sending pings until we've reached consensus
+	//auto-sense enabled?
+	//if so don't start sending pings until we've reached consensus
 
 	//TODO Make this a channel gate vs. polling
 	for p.PeerConnectionTemplate.Autosense {
@@ -435,7 +436,7 @@ func (p *PhantomDaemon) processEvents(eventChannel chan events.Event) {
 		case events.NewAddr:
 			addr := event.Data.(*wire.NetAddress)
 			//log.WithField("addr", addr.IP).Debug("New address found. Saving.")
-			database.GetInstance().StorePeer(database.Peer{Address:addr.IP.String(), Port:uint32(addr.Port), LastSeen:time.Now()})
+			database.GetInstance().StorePeer(database.Peer{Address: addr.IP.String(), Port: uint32(addr.Port), LastSeen: time.Now()})
 		case events.PeerDisconnect:
 			peer := event.Data.(*PeerConnection)
 			log.WithField("ip", peer.PeerInfo.Address).Debug("Handled peer disconnection.")
@@ -463,9 +464,9 @@ func (p *PhantomDaemon) processNewMasternodePing(ping *wire.MsgMNP) {
 		log.Info("--- CONSENSUS REACHED ---")
 		log.Info("-------------------------")
 		log.WithFields(log.Fields{
-			"Outpoint form":useOut,
-			"Sentinel version":sentinel,
-			"Daemon version":daemon,
+			"Outpoint form":    useOut,
+			"Sentinel version": sentinel,
+			"Daemon version":   daemon,
 		}).Info("Consensus reached.")
 		log.Info("-------------------------")
 		log.Info("-------------------------")
@@ -486,7 +487,7 @@ func (p *PhantomDaemon) processNewMasternodePing(ping *wire.MsgMNP) {
 	}
 }
 
-func (p *PhantomDaemon)  generatePings(channels ...chan events.Event) {
+func (p *PhantomDaemon) generatePings(channels ...chan events.Event) {
 	for {
 		startTime := time.Now()
 
@@ -538,17 +539,17 @@ func (p *PhantomDaemon) spawnNewPeer(inboundEventChannel chan events.Event, outb
 	drainChannel(inboundEventChannel)
 
 	peer := PeerConnection{
-		MagicBytes: p.PeerConnectionTemplate.MagicBytes,
-		ProtocolNumber: p.PeerConnectionTemplate.ProtocolNumber,
-		MagicMessage: p.PeerConnectionTemplate.MagicMessage,
-		PeerInfo:peerInfo,
-		InboundEvents:inboundEventChannel,
-		OutboundEvents:outboundEventChannel,
-		SentinelVersion:p.PeerConnectionTemplate.SentinelVersion,
-		DaemonVersion:p.PeerConnectionTemplate.DaemonVersion,
-		UseOutpointFormat:p.PeerConnectionTemplate.UseOutpointFormat,
-		Autosense:p.PeerConnectionTemplate.Autosense,
-		BroadcastListen:p.PeerConnectionTemplate.BroadcastListen,
+		MagicBytes:        p.PeerConnectionTemplate.MagicBytes,
+		ProtocolNumber:    p.PeerConnectionTemplate.ProtocolNumber,
+		MagicMessage:      p.PeerConnectionTemplate.MagicMessage,
+		PeerInfo:          peerInfo,
+		InboundEvents:     inboundEventChannel,
+		OutboundEvents:    outboundEventChannel,
+		SentinelVersion:   p.PeerConnectionTemplate.SentinelVersion,
+		DaemonVersion:     p.PeerConnectionTemplate.DaemonVersion,
+		UseOutpointFormat: p.PeerConnectionTemplate.UseOutpointFormat,
+		Autosense:         p.PeerConnectionTemplate.Autosense,
+		BroadcastListen:   p.PeerConnectionTemplate.BroadcastListen,
 	}
 
 	return &peer
@@ -556,6 +557,6 @@ func (p *PhantomDaemon) spawnNewPeer(inboundEventChannel chan events.Event, outb
 
 func drainChannel(channel chan events.Event) {
 	for len(channel) > 0 {
-		<- channel
+		<-channel
 	}
 }
