@@ -609,17 +609,17 @@ func (p *PhantomDaemon) MonitorForNeededRestart() {
 	
 		//active is LastSeen in minus than 20 minutes ago
 		log.Info("Active Connections: ", num, " (total: ", len(peerCollection.PeerConnections),", min: ", p.MinConnections, ", max: ", p.MaxConnections, ")")
-		if p.MinConnections > 0 && num < int(p.MinConnections) && time.Now().Sub(StartTime).Seconds() > 300 {
+		if p.MinConnections > 0 && num < int(p.MinConnections) && time.Now().Sub(StartTime).Minutes() > 5 {
 			runningTime := time.Now().Sub(StartTime)
 			withoutPingTime := time.Now().Sub(LastPingtime)
-			log.Error("Under minimum number of connections (even 5 minutes after phantom start). Phantom running for ", math.Floor(runningTime.Hours()/24), "d ", math.Floor(math.Remainder(runningTime.Hours(), 24)), "h ", math.Floor(math.Remainder(runningTime.Minutes(), 24)), "m ", math.Floor(math.Remainder(runningTime.Seconds(), 24)), "s ", "Without ping for ", math.Floor(withoutPingTime.Hours()/24), "d ", math.Floor(math.Remainder(withoutPingTime.Hours(), 24)), "h ", math.Floor(math.Remainder(withoutPingTime.Minutes(), 24)), "m ", math.Floor(math.Remainder(withoutPingTime.Seconds(), 24)), "s ")
+			log.Error("Under minimum number of connections (even 5 minutes after phantom start). Phantom running for ", math.Floor(runningTime.Hours()/24), "d ", math.Floor(math.Remainder(runningTime.Hours(), 24)), "h ", math.Floor(math.Remainder(runningTime.Minutes(), 24)), "m ", math.Floor(math.Remainder(runningTime.Seconds(), 24)), "s ", "Without ping for ", math.Floor(withoutPingTime.Hours()/24), "d ", math.Floor(math.Remainder(withoutPingTime.Hours(), 24)), "h ", math.Floor(math.Remainder(withoutPingTime.Minutes(), 24)), "m ", math.Floor(math.Remainder(withoutPingTime.Seconds(), 24)), "s. CLOSING APPLICATION NOW")
 			os.Exit(0)
 		}
-
-		if p.NoblockMinutes > 0 && math.Floor(time.Now().Sub(LastBlockTime).Minutes()) > float64(p.NoblockMinutes) && time.Now().Sub(StartTime).Seconds() > 300 {
+		
+		if p.NoblockMinutes > 0 && math.Floor(math.Abs(time.Now().Sub(LastBlockTime).Minutes())) > float64(p.NoblockMinutes) && time.Now().Sub(StartTime).Minutes() > 5 {
 			runningTime := time.Now().Sub(StartTime)
-			withoutPingTime := time.Now().Sub(LastPingtime)
-			log.Error("More than ", p.NoblockMinutes, " minutes without receiving new blocks. Phantom running for ", math.Floor(runningTime.Hours()/24), "d ", math.Floor(math.Remainder(runningTime.Hours(), 24)), "h ", math.Floor(math.Remainder(runningTime.Minutes(), 24)), "m ", math.Floor(math.Remainder(runningTime.Seconds(), 24)), "s ", "Without ping for ", math.Floor(withoutPingTime.Hours()/24), "d ", math.Floor(math.Remainder(withoutPingTime.Hours(), 24)), "h ", math.Floor(math.Remainder(withoutPingTime.Minutes(), 24)), "m ", math.Floor(math.Remainder(withoutPingTime.Seconds(), 24)), "s ")
+			withoutNewBlocks := time.Now().Sub(LastBlockTime)
+			log.Error("More than ", p.NoblockMinutes, " minutes without receiving new blocks. Phantom running for ", math.Floor(runningTime.Hours()/24), "d ", math.Floor(math.Remainder(runningTime.Hours(), 24)), "h ", math.Floor(math.Remainder(runningTime.Minutes(), 24)), "m ", math.Floor(math.Remainder(runningTime.Seconds(), 24)), "s ", "Without new blocks for ", math.Floor(withoutNewBlocks.Hours()/24), "d ", math.Floor(math.Remainder(withoutNewBlocks.Hours(), 24)), "h ", math.Floor(math.Remainder(withoutNewBlocks.Minutes(), 24)), "m ", math.Floor(math.Remainder(withoutNewBlocks.Seconds(), 24)), "s. CLOSING APPLICATION NOW")
 			os.Exit(0)
 		}
 	}
