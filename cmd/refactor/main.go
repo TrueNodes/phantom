@@ -231,7 +231,7 @@ func main() {
 				protocolNum = uint(coinConf.ProtocolNumber)
 			}
 
-			if phantomDaemon.PeerConnectionTemplate.MagicMessage == "" {
+			if phantomDaemon.PeerConnectionTemplate.MagicMessage == "" || coinConf.MagicMessage != "" {
 				phantomDaemon.PeerConnectionTemplate.MagicMessage = coinConf.MagicMessage
 			}
 
@@ -247,7 +247,7 @@ func main() {
 				phantomDaemon.DNSSeeds = coinConf.DNSSeeds
 			}
 
-			if bootstrapHashStr == "" {
+			if bootstrapHashStr == "" || coinConf.BootstrapHash != "" {
 				bootstrapHashStr = coinConf.BootstrapHash
 			}
 
@@ -263,16 +263,16 @@ func main() {
 				daemonString = coinConf.DaemonVersion
 			}
 
-			if phantomDaemon.PeerConnectionTemplate.UserAgent == "TrueNodes - Hospedagem de Masternodes" &&
+			if phantomDaemon.PeerConnectionTemplate.UserAgent == "TrueNodes - Masternode Hosting" ||
 				coinConf.UserAgent != "" {
 				phantomDaemon.PeerConnectionTemplate.UserAgent = coinConf.UserAgent
 			}
 
-			if !phantomDaemon.PeerConnectionTemplate.BroadcastListen && coinConf.BroadcastListen != nil {
+			if !phantomDaemon.PeerConnectionTemplate.BroadcastListen || coinConf.BroadcastListen != nil {
 				phantomDaemon.PeerConnectionTemplate.BroadcastListen = *coinConf.BroadcastListen
 			}
 
-			if phantomDaemon.PeerConnectionTemplate.Autosense && coinConf.Autosense != nil {
+			if phantomDaemon.PeerConnectionTemplate.Autosense || coinConf.Autosense != nil {
 				phantomDaemon.PeerConnectionTemplate.Autosense = *coinConf.Autosense
 			}
 		}
