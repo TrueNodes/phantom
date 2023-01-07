@@ -123,10 +123,10 @@ func GeneratePingsFromMasternodeFile(filePath string,
 
 		fields := strings.Fields(line)
 
-		//add an epoch if missing and alert
+		//add an epoch if missing and alert (15 seconds between each masternode)
 		if len(fields) == 5 {
 			log.Debug("No epoch time found for: ", fields[0], " assuming one.")
-			fields = append(fields, strconv.FormatInt(currentTime.Add(time.Duration(i*7)*time.Second).Unix()-540, 10))
+			fields = append(fields, strconv.FormatInt(currentTime.Add(time.Duration(i*15)*time.Second).Unix()-540, 10))
 			i++
 		}
 

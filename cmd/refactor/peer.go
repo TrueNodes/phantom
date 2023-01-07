@@ -160,7 +160,7 @@ func (pinger *PeerConnection) Start(bootstrapHash *chainhash.Hash, userAgent str
 						log.Debug("INVENTORY TYPE: ", inventory.Type)
 
 						if inventory.Type.String() == "MSG_BLOCK" {
-							log.Debug("New block received: " + inventory.Hash.String())
+							log.Debug("New block received: " + inventory.Hash.String(), " from ", pinger.PeerInfo.Address, ":", pinger.PeerInfo.Port)
 							pinger.OutboundEvents <- events.Event{events.NewBlock, &inventory.Hash}
 
 							LastBlockTime = time.Now()
