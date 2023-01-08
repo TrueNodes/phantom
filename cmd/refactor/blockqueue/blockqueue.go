@@ -50,15 +50,12 @@ func (b *BlockQueue) AddHash(hash chainhash.Hash) {
 		//found a hash, update it.
 		value.Count++
 
-		log.WithFields(log.Fields{
-			"hash":hash,
-			"hash_count:":value.Count,
-		}, ).Debug("Hash found in queue.")
+		log.Debug("Hash found in queue. hash=", hash, "hash_count=", value.Count)
 
 		//if we're over the threshold push the hash to the queue
 		//remove from the orphan table
 		if value.Count >= b.Threshold {
-			log.WithField("hash", hash).Debug("Hash over threshold, pushing.")
+			log.Debug("Hash over threshold, pushing. hash=", hash)
 			b.queue.Push(&hash)
 			//don't delete because other peers might still chime in, let the clean up func() handle it.
 			//delete(b.orphans, hash.String())
@@ -89,7 +86,7 @@ func (b *BlockQueue) cleanMap() {
 	for {
 		//check every 5 minutes
 		time.Sleep(time.Minute * 5)
-		log.WithField("time", time.Now()).Debug("Cleaning orphan blocks.")
+		log.Debug("Cleaning orphan blocks.")
 
 		b.mutex.Lock()
 		currentTime := time.Now()

@@ -21,6 +21,7 @@ import (
 	"./remotechains"
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	log "github.com/sirupsen/logrus"
+	easy "github.com/t-tomalak/logrus-easy-formatter"
 )
 
 type PeerCollection struct {
@@ -82,7 +83,7 @@ func init() {
 }
 
 func main() {
-	const VERSION = "2.0.0-beta"
+	const VERSION = "2.1-beta"
 
 	var done chan bool
 
@@ -139,8 +140,7 @@ func main() {
 		"DarkNet Signed Message:",
 		"the signing message")
 
-	flag.BoolVar(&magicMsgNewLine,
-		"magic_message_newline",
+	flag.BoolVar(&magicMsgNewLine, "magic_message_newline",
 		true,
 		"add a new line to the magic message")
 
@@ -156,40 +156,33 @@ func main() {
 		"",
 		"Hash to bootstrap the pings with ( top - 12 )")
 
-	flag.StringVar(&bootstrapChainsStr,
-		"bootstrap_chains",
+	flag.StringVar(&bootstrapChainsStr, "bootstrap_chains",
 		"",
 		`Remote chains to bootstrap from. This is a JSON array in the form of:]\n)
 			[{"username:"user","password":"secret","format":"iquidus","url":"http://some.explorer"},{...}"]\n\n
 			Valid chain formats are: iquidus, insight, or rpc`)
 
-	flag.StringVar(&sentinelString,
-		"sentinel_version",
+	flag.StringVar(&sentinelString, "sentinel_version",
 		"",
 		"The string to use for the sentinel version number (i.e. 1.20.0)")
 
-	flag.StringVar(&daemonString,
-		"daemon_version",
+	flag.StringVar(&daemonString, "daemon_version",
 		"",
 		"The string to use for the sentinel version number (i.e. 1.20.0)")
 
-	flag.StringVar(&phantomDaemon.PeerConnectionTemplate.UserAgent,
-		"user_agent",
+	flag.StringVar(&phantomDaemon.PeerConnectionTemplate.UserAgent, "user_agent",
 		"TrueNodes - Masternode Hosting",
 		"The user agent string to connect to remote peers with.")
 
-	flag.BoolVar(&phantomDaemon.PeerConnectionTemplate.BroadcastListen,
-		"broadcast_listen",
+	flag.BoolVar(&phantomDaemon.PeerConnectionTemplate.BroadcastListen, "broadcast_listen",
 		true,
 		"If set to true, the phantom will listen for new broadcasts and cache them for 4 hours.")
 
-	flag.BoolVar(&phantomDaemon.PeerConnectionTemplate.Autosense,
-		"autosense",
+	flag.BoolVar(&phantomDaemon.PeerConnectionTemplate.Autosense, "autosense",
 		true,
 		"If set to true, the phantom will listen for new broadcasts and cache them for 4 hours.")
 
-	flag.BoolVar(&debugLogging,
-		"debug",
+	flag.BoolVar(&debugLogging, "debug",
 		false,
 		"Enable debug output.")
 
@@ -197,7 +190,14 @@ func main() {
 
 	if debugLogging {
 		log.SetLevel(log.DebugLevel)
+	} else {
+		log.SetLevel(log.InfoLevel)
 	}
+
+	log.SetFormatter(&easy.Formatter{
+		TimestampFormat: "2006-01-02 15:04:05",
+		LogFormat:       "[%lvl%]: %time% | %msg%\n",
+	})
 
 	var coinConf = coinconf.CoinConf{}
 
@@ -327,27 +327,27 @@ func main() {
 		}
 	}
 
-	log.WithFields(log.Fields{
-		"masternode_conf": phantomDaemon.MasternodeConf,
-		"min_connections": phantomDaemon.MinConnections,
-		"max_connections": phantomDaemon.MaxConnections,
-		"noblock_minutes": phantomDaemon.NoblockMinutes,
-		"magic_bytes": strings.ToUpper(strconv.FormatInt(
-			int64(phantomDaemon.PeerConnectionTemplate.MagicBytes), 16)),
-		"magic_message":    phantomDaemon.PeerConnectionTemplate.MagicMessage,
-		"protocol_number":  phantomDaemon.PeerConnectionTemplate.ProtocolNumber,
-		"bootstrap_ips":    phantomDaemon.BootstrapIPs,
-		"bootstrap_chains": bootstrapChainsStr,
-		"bootstrap_hash":   phantomDaemon.BootstrapHash.String(),
-		"autosense":        phantomDaemon.PeerConnectionTemplate.Autosense,
-		"broadcast_listen": phantomDaemon.PeerConnectionTemplate.BroadcastListen,
-		"daemon_version":   phantomDaemon.PeerConnectionTemplate.DaemonVersion,
-		"sentinel_version": phantomDaemon.PeerConnectionTemplate.SentinelVersion,
-		"user_agent":       phantomDaemon.PeerConnectionTemplate.UserAgent,
-		"dns_seeds":        phantomDaemon.DNSSeeds,
-		"default_port":     phantomDaemon.DefaultPort,
-		"debug":            debugLogging,
-	}).Info("Using the following settings.")
+	log.Info("Using the following settings:")
+	log.Info("masternode_conf: ", phantomDaemon.MasternodeConf)
+	log.Info("min_connections: ", phantomDaemon.MinConnections)
+	log.Info("max_connections: ", phantomDaemon.MaxConnections)
+	log.Info("db_path: ", 		database.DbPath)
+	log.Info("noblock_minutes: ", phantomDaemon.NoblockMinutes)
+	log.Info("magic_bytes: ", 	strings.ToUpper(strconv.FormatInt(
+			int64(phantomDaemon.PeerConnectionTemplate.MagicBytes), 16)))
+	log.Info("magic_message: ", phantomDaemon.PeerConnectionTemplate.MagicMessage)
+	log.Info("protocol_number: ", phantomDaemon.PeerConnectionTemplate.ProtocolNumber)
+	log.Info("bootstrap_ips: ", phantomDaemon.BootstrapIPs)
+	log.Info("bootstrap_chains: ", bootstrapChainsStr)
+	log.Info("bootstrap_hash: ", phantomDaemon.BootstrapHash.String())
+	log.Info("autosense: ", 	phantomDaemon.PeerConnectionTemplate.Autosense)
+	log.Info("broadcast_listen: ", phantomDaemon.PeerConnectionTemplate.BroadcastListen)
+	log.Info("daemon_version: ", phantomDaemon.PeerConnectionTemplate.DaemonVersion)
+	log.Info("sentinel_version: ", phantomDaemon.PeerConnectionTemplate.SentinelVersion)
+	log.Info("user_agent: ", 	phantomDaemon.PeerConnectionTemplate.UserAgent)
+	log.Info("dns_seeds: ", 	phantomDaemon.DNSSeeds)
+	log.Info("default_port: ", 	phantomDaemon.DefaultPort)
+	log.Info("debug: ", 		debugLogging)
 
 	phantomDaemon.Start()
 
@@ -396,9 +396,7 @@ func (p *PhantomDaemon) Start() {
 				log.Error("Failed to load bootstrap hash")
 				hash = defaultHash //reset to default just to be safe
 			}
-			log.WithFields(log.Fields{
-				"hash": hash.String(),
-			}).Info("Bootstrap hash value")
+			log.Info("Bootstrap hash value: ", hash.String())
 		}
 	}
 
@@ -440,7 +438,7 @@ func (p *PhantomDaemon) Start() {
 			BroadcastListen:   p.PeerConnectionTemplate.BroadcastListen,
 		}
 
-		log.WithField("peer ip", peer).Debug("Starting new peer.")
+		log.Debug("Starting new peer: ", peer.Address, ":", peer.Port)
 		go peerConn.Start(&hash, "break")
 		peerCollection.AddPeer(&peerConn)
 	}
@@ -473,15 +471,15 @@ func (p *PhantomDaemon) processEvents(eventChannel chan events.Event) {
 			broadcaststore.GetInstance().StoreBroadcast(mnb)
 		case events.NewBlock:
 			hash := event.Data.(*chainhash.Hash)
-			//log.WithField("hash", hash.String()).Info("New block.")
+			//log.Info("New block. hash = ", hash.String())
 			blockqueue.GetInstance().AddHash(*hash)
 		case events.NewAddr:
 			addr := event.Data.(*wire.NetAddress)
-			//log.WithField("addr", addr.IP).Debug("New address found. Saving.")
+			//log.Debug("New address found. Saving = ", addr.IP)
 			database.GetInstance().StorePeer(database.Peer{Address: addr.IP.String(), Port: uint32(addr.Port), LastSeen: time.Now()})
 		case events.PeerDisconnect:
 			peer := event.Data.(*PeerConnection)
-			log.WithField("ip", peer.PeerInfo.Address).Debug("Handled peer disconnection.")
+			log.Debug("Handled peer disconnection: ", peer.PeerInfo.Address, ":", peer.PeerInfo.Port)
 			p.processPeerDisconenct(peer)
 		}
 	}
@@ -505,11 +503,10 @@ func (p *PhantomDaemon) processNewMasternodePing(ping *wire.MsgMNP) {
 		log.Info("-------------------------")
 		log.Info("--- CONSENSUS REACHED ---")
 		log.Info("-------------------------")
-		log.WithFields(log.Fields{
-			"Outpoint form":    useOut,
-			"Sentinel version": sentinel,
-			"Daemon version":   daemon,
-		}).Info("Consensus reached.")
+		log.Info()
+		log.Info("Outpoint form: ",	useOut)
+		log.Info("Sentinel version: ",	sentinel)
+		log.Info("Daemon version: ",	daemon)
 		log.Info("-------------------------")
 		log.Info("-------------------------")
 
@@ -575,7 +572,7 @@ func (p *PhantomDaemon) spawnNewPeer(inboundEventChannel chan events.Event, outb
 		//fmt.Println(peerInfo.Address)
 	}
 
-	log.WithField("ip", peerInfo.Address).Debug("Spawned new peer.")
+	log.Debug("Spawned new peer: ", peerInfo.Address, ":", peerInfo.Port)
 
 	//drain the channel before assigning to remove any stale pings
 	drainChannel(inboundEventChannel)
@@ -608,8 +605,6 @@ var LastBlockTime time.Time = time.Now().Add(time.Minute * 5)
 var LastPingtime time.Time = time.Now().Add(time.Minute * 5)
 
 func (p *PhantomDaemon) MonitorForNeededRestart() {
-	StartTime = time.Now()
-
 	for {
 		//check every minute
 		time.Sleep(time.Minute * 1)

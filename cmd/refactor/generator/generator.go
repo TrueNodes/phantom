@@ -170,19 +170,19 @@ func GeneratePingsFromMasternodeFile(filePath string,
 
 	//we have a sorted list of pings -- add them to the channel
 	for _, ping := range pings {
-		log.Info("Generating a ping for: ", ping.Name)
+		log.Debug("Generating a ping for: ", ping.Name)
 
 		sleepTime := ping.PingTime.Sub(time.Now())
 
 		log.Debug(time.Now().UTC())
-		log.Info(ping.Name, " - ", ping.PingTime.UTC())
+		log.Debug(ping.Name, " - ", ping.PingTime.UTC())
 
 		if sleepTime > 0 {
-			log.Info("Sleeping for ", sleepTime.String())
+			log.Debug("Sleeping for ", sleepTime.String())
 			time.Sleep(sleepTime)
 		}
 
-		log.Debug(ping.Name, " ping being transmitted to the network.")
+		log.Info("Sending ", ping.Name, " ping to the network")
 
 		for _, channel := range channels {
 			pingCopy := ping

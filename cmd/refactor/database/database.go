@@ -8,9 +8,10 @@ import (
 	"net"
 	"strconv"
 	"sync"
+	"time"
+
 	"github.com/etcd-io/bbolt"
 	log "github.com/sirupsen/logrus"
-	"time"
 )
 
 type Peer struct {

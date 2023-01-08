@@ -87,7 +87,7 @@ func (pinger *PeerConnection) Start(bootstrapHash *chainhash.Hash, userAgent str
 	for {
 
 		if connectionAttempts >= 10 || len(pinger.InboundEvents) > 10 {
-			log.Debug("Unable to connect -- closing connection.")
+			log.Debug("Unable to connect -- closing connection to ", pinger.PeerInfo.Address, ":", pinger.PeerInfo.Port)
 			pinger.SetStatus(-1)
 			pinger.OutboundEvents <- events.Event{Type: events.PeerDisconnect, Data: pinger}
 			return
@@ -119,7 +119,7 @@ func (pinger *PeerConnection) Start(bootstrapHash *chainhash.Hash, userAgent str
 
 			//connection failed, set the status to -1 and let it be reaped
 			if connectionAttempts >= 10 || len(pinger.InboundEvents) > 10 {
-				log.Debug("Unable to connect -- closing connection.")
+				log.Debug("Unable to connect -- closing connection to ", pinger.PeerInfo.Address, ":", pinger.PeerInfo.Port)
 				pinger.SetStatus(-1)
 
 				pinger.OutboundEvents <- events.Event{Type: events.PeerDisconnect, Data: pinger}
@@ -148,7 +148,7 @@ func (pinger *PeerConnection) Start(bootstrapHash *chainhash.Hash, userAgent str
 				continue
 			} else {
 
-				log.Debug("COMMAND: ", msg.Command())
+				log.Debug("COMMAND: ", msg.Command(), " | from  ", pinger.PeerInfo.Address, ":", pinger.PeerInfo.Port)
 
 				connectionAttempts = 0
 
@@ -331,7 +331,7 @@ func (pinger *PeerConnection) Start(bootstrapHash *chainhash.Hash, userAgent str
 
 						ping := event.Data.(*generator.MasternodePing)
 
-						log.Debug("Relaying ping to the network for: ", ping.Name)
+						log.Info("Relaying ping to the network for: ", ping.Name)
 
 						mnp := ping.GenerateMasternodePing(ping.UseOutpoint, pinger.SentinelVersion, pinger.DaemonVersion)
 
@@ -395,11 +395,11 @@ func (pinger *PeerConnection) Start(bootstrapHash *chainhash.Hash, userAgent str
 						//store the ping
 						messageMap[invVec.Hash.String()] = &mnp
 					default:
-						//log.Info("That shouldn't happen", event)
+						log.Debug("That shouldn't happen", event)
 					}
 
 				default:
-					//log.Info("No message received.")
+					log.Debug("No message received.")
 				}
 
 				//this should really be a hashMap with expiring entries
@@ -434,7 +434,7 @@ func (pinger *PeerConnection) Start(bootstrapHash *chainhash.Hash, userAgent str
 
 		//we've disconnected, so try again
 		connectionAttempts++
-		log.Printf("%s : There's been an error, attempting to reconnect.", pinger.PeerInfo.Address)
+		log.Printf("%s : There's been an error, attempting to reconnect in 1 minute to ", pinger.PeerInfo.Address, ":", pinger.PeerInfo.Port)
 		time.Sleep(1 * time.Minute)
 	}
 }

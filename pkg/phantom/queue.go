@@ -66,7 +66,7 @@ func (q *Queue) Push(n *chainhash.Hash) {
 		}
 	}
 
-	log.WithField("hash", n.String()).Info("Added new block hash to queue.")
+	log.Info("Queued new block hash: ", n.String())
 
 	if q.head == q.tail && q.count > 0 {
 		nodes := make([]*chainhash.Hash, len(q.nodes)+q.size)
