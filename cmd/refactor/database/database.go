@@ -26,6 +26,7 @@ type peerdb struct {
 
 var instance *peerdb
 var once sync.Once
+var DbPath string = "peer.db"
 
 func GetInstance() *peerdb {
 	once.Do(func() {
@@ -43,7 +44,7 @@ func GetInstance() *peerdb {
 }
 
 func (p *peerdb) SetupDB() {
-	db, err := bbolt.Open("peer.db", 0600, nil)
+	db, err := bbolt.Open(DbPath, 0600, nil)
 	if err != nil {
 		log.Error("could not open db, %v", err)
 	}

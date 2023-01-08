@@ -115,6 +115,10 @@ func main() {
 		0,
 		"the minimum number of peers to maintain. 0 is disabled")
 
+	flag.StringVar(&database.DbPath, "db_path",
+		"peer.db",
+		"path for peers db")
+
 	flag.UintVar(&phantomDaemon.NoblockMinutes, "noblock_minutes",
 		0,
 		"the maximum number (in minutes) without receiving blocks. 0 is disabled")
@@ -213,6 +217,10 @@ func main() {
 
 			if coinConf.MinConnections != nil {
 				phantomDaemon.MinConnections = uint(*coinConf.MinConnections)
+			}
+
+			if coinConf.DbPath != "" {
+				database.DbPath = coinConf.DbPath
 			}
 
 			if coinConf.NoblockMinutes != nil {
